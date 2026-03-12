@@ -1,46 +1,37 @@
 /**
  * Berechnungsfunktionen für die Ankunftszeiten (Enterprise Edition)
- * Berücksichtigt Schichtpausen für eine präzise Industrie-ETA
+ * Berücksichtigt Schichtpausen und Porsche Stations-Layout (-10 bis X)
  */
 
 import type { ShiftBreak } from '@/store/useStationStore';
 
-/**
- * Ergebnis der Ankunftsberechnung
- */
 export interface ArrivalResult {
-  /** Verbleibende Stationen bis zur Zielstation */
   remainingStations: number;
-  /** Verbleibende reine Arbeitszeit in Sekunden (ohne Pausen) */
   remainingSeconds: number;
-  /** Tatsächliche Sekunden bis zur Ankunft (inklusive Pausen) */
   totalSecondsIncludingBreaks: number;
-  /** Ob das Fahrzeug bereits vorbei ist */
   isPassed: boolean;
-  /** Ob die Berechnung gültig ist */
   isValid: boolean;
-  /** Formatierte Zeit als HH:MM:SS */
   formattedTime: string;
-  /** Fortschritt in Prozent (0-100) */
   progressPercent: number;
-  /** Uhrzeit der tatsächlichen Ankunft */
   estimatedArrivalTime: Date;
 }
 
 /**
- * Berechnet die Ankunftszeit unter Berücksichtigung von Schichtpausen
+ * Berechnet die Ankunftszeit
  */
 export function calculateArrivalTime(
   currentStation: number,
   targetStation: number,
   totalStations: number,
   secondsPerStation: number,
+  minStation: number = -10,
   breaks: ShiftBreak[] = []
 ): ArrivalResult {
+  // Validierung
   if (
     isNaN(currentStation) || isNaN(targetStation) ||
-    currentStation < 1 || currentStation > totalStations ||
-    targetStation < 1 || targetStation > totalStations
+    currentStation < minStation || currentStation > totalStations ||
+    targetStation < minStation || targetStation > totalStations
   ) {
     return {
       remainingStations: 0,
@@ -87,7 +78,11 @@ export function calculateArrivalTime(
 
   const totalSecondsIncludingBreaks = Math.floor((currentCheckTime - now.getTime()) / 1000);
   const estimatedArrivalTime = new Date(currentCheckTime);
-  const progressPercent = Math.min(100, Math.max(0, (currentStation / totalStations) * 100));
+  
+  // Fortschrittsberechnung angepasst an negativen Startbereich
+  const totalRange = totalStations - minStation;
+  const currentOffset = currentStation - minStation;
+  const progressPercent = Math.min(100, Math.max(0, (currentOffset / totalRange) * 100));
 
   return {
     remainingStations,

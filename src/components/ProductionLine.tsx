@@ -1,6 +1,7 @@
 /**
  * ProductionLine Komponente
  * Visualisiert die Produktionslinie mit Fortschrittsanzeige
+ * Angepasst für Porsche Stations-Bereich (-10 bis X)
  */
 import { motion } from 'framer-motion';
 import { Car, Factory, Flag } from 'lucide-react';
@@ -10,7 +11,9 @@ interface ProductionLineProps {
   currentStation: number;
   /** Zielstation (Meine Station) */
   targetStation: number;
-  /** Gesamtanzahl der Stationen */
+  /** Start-Station */
+  minStation: number;
+  /** End-Station */
   totalStations: number;
   /** Zusätzliche CSS-Klassen */
   className?: string;
@@ -18,17 +21,20 @@ interface ProductionLineProps {
 
 /**
  * Visualisiert die Produktionslinie als animierte Grafik
- * Zeigt aktuelle Position, Ziel und Fortschritt
  */
 export function ProductionLine({
   currentStation,
   targetStation,
+  minStation,
   totalStations,
   className = '',
 }: ProductionLineProps) {
-  // Berechne die Positionen als Prozentsatz
-  const currentPosition = (currentStation / totalStations) * 100;
-  const targetPosition = (targetStation / totalStations) * 100;
+  // Berechne den Gesamtbereich
+  const range = totalStations - minStation;
+  
+  // Berechne die Positionen relativ zum Startpunkt
+  const currentPosition = ((currentStation - minStation) / range) * 100;
+  const targetPosition = ((targetStation - minStation) / range) * 100;
 
   // Bestimme den Status
   const isPassed = currentStation >= targetStation;
@@ -75,29 +81,16 @@ export function ProductionLine({
         
         {/* Fortschrittslinie (bis zur aktuellen Position) */}
         <motion.div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-2 bg-[#d5001c] rounded-sm"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-1.5 bg-[#d5001c] rounded-sm"
           initial={{ width: 0 }}
           animate={{ width: `${currentPosition}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         />
 
-        {/* Verbleibender Weg (von aktueller bis Zielstation) */}
-        {!isPassed && !isAtTarget && (
-          <motion.div
-            className="absolute top-1/2 -translate-y-1/2 h-2 bg-[#d5001c]/30 rounded-sm"
-            initial={{ left: `${currentPosition}%`, width: 0 }}
-            animate={{ 
-              left: `${currentPosition}%`, 
-              width: `${targetPosition - currentPosition}%` 
-            }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
-          />
-        )}
-
         {/* Start-Marker */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2">
           <div className="w-8 h-8 rounded-sm bg-gray-700 border-2 border-[#1a1a1a] flex items-center justify-center">
-            <span className="text-[10px] font-bold text-white uppercase">Start</span>
+            <span className="text-[10px] font-bold text-white uppercase">{minStation}</span>
           </div>
         </div>
 
@@ -165,23 +158,6 @@ export function ProductionLine({
             <span className="text-[10px] font-bold text-white">{totalStations}</span>
           </div>
         </div>
-      </div>
-
-      {/* Stations-Ticks */}
-      <div className="relative h-4 mt-2">
-        {Array.from({ length: 11 }, (_, i) => {
-          const station = Math.round((totalStations / 10) * i);
-          const position = (station / totalStations) * 100;
-          return (
-            <div
-              key={station}
-              className="absolute top-0 -translate-x-1/2"
-              style={{ left: `${position}%` }}
-            >
-              <div className="w-0.5 h-2 bg-gray-600" />
-            </div>
-          );
-        })}
       </div>
 
       {/* Legende */}

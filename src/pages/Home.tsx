@@ -1,6 +1,7 @@
 /**
  * Home Page (Enterprise Edition)
  * Inklusive Pausen-Management, Watchlist, Haptik und Porsche-Präzision
+ * Angepasst für Porsche Stations-Bereich (-10 bis X)
  */
 import { useMemo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,9 +23,9 @@ export function Home() {
   // Store-States
   const {
     currentStation, targetStation, favoriteStation, totalStations, secondsPerStation,
-    breaks, watchlist,
+    breaks, watchlist, minStation,
     setCurrentStation, setTargetStation, setFavoriteStation, setTotalStations,
-    setSecondsPerStation, toggleBreak, addToWatchlist, removeFromWatchlist
+    setSecondsPerStation, toggleBreak, addBreak, removeBreak, addToWatchlist, removeFromWatchlist
   } = useStationStore();
 
   const [showSettings, setShowSettings] = useState(false);
@@ -33,6 +34,11 @@ export function Home() {
   const [editTotal, setEditTotal] = useState(totalStations.toString());
   const [editMins, setEditMins] = useState(Math.floor(secondsPerStation / 60).toString());
   const [editSecs, setEditSecs] = useState((secondsPerStation % 60).toString());
+  
+  // New Break State
+  const [newBreakName, setNewBreakName] = useState('');
+  const [newBreakStart, setNewBreakStart] = useState('09:00');
+  const [newBreakEnd, setNewBreakEnd] = useState('09:15');
 
   useEffect(() => {
     setEditTotal(totalStations.toString());
@@ -46,9 +52,16 @@ export function Home() {
     setShowSettings(false);
   };
 
+  const handleAddBreak = () => {
+    if (newBreakName.trim()) {
+      addBreak(newBreakName, newBreakStart, newBreakEnd);
+      setNewBreakName('');
+    }
+  };
+
   const arrivalResult = useMemo(() => {
-    return calculateArrivalTime(currentStation, targetStation, totalStations, secondsPerStation, breaks);
-  }, [currentStation, targetStation, totalStations, secondsPerStation, breaks]);
+    return calculateArrivalTime(currentStation, targetStation, totalStations, secondsPerStation, minStation, breaks);
+  }, [currentStation, targetStation, totalStations, secondsPerStation, minStation, breaks]);
 
   // Effekt für Vibration und Visual Alerts
   useEffect(() => {
@@ -111,56 +124,77 @@ export function Home() {
           {showSettings && (
             <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="p-6 bg-[#111] border border-white/10 rounded-sm space-y-6 overflow-hidden">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Konfiguration</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Werkseinstellungen</h2>
                 <Button variant="ghost" size="icon" onClick={() => setShowSettings(false)}><X className="w-5 h-5" /></Button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <Label className="text-gray-400 uppercase text-[10px] tracking-widest">Produktion</Label>
-                  <div className="flex gap-4">
-                    <div className="flex-1 space-y-2">
-                      <Label className="text-[10px] uppercase">Stationen Gesamt</Label>
-                      <Input type="number" value={editTotal} onChange={e => setEditTotal(e.target.value)} className="bg-black border-white/10 rounded-sm" />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <Label className="text-[10px] uppercase">Taktzeit (M:S)</Label>
-                      <div className="flex gap-2">
-                        <Input type="number" value={editMins} onChange={e => setEditMins(e.target.value)} className="bg-black border-white/10 rounded-sm" />
-                        <Input type="number" value={editSecs} onChange={e => setEditSecs(e.target.value)} className="bg-black border-white/10 rounded-sm" />
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <Label className="text-gray-400 uppercase text-[10px] tracking-widest">Produktions-Parameter</Label>
+                    <div className="flex gap-4">
+                      <div className="flex-1 space-y-2">
+                        <Label className="text-[10px] uppercase">End-Station</Label>
+                        <Input type="number" value={editTotal} onChange={e => setEditTotal(e.target.value)} className="bg-black border-white/10 rounded-sm" />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <Label className="text-[10px] uppercase">Taktzeit (M:S)</Label>
+                        <div className="flex gap-2">
+                          <Input type="number" value={editMins} onChange={e => setEditMins(e.target.value)} className="bg-black border-white/10 rounded-sm" />
+                          <Input type="number" value={editSecs} onChange={e => setEditSecs(e.target.value)} className="bg-black border-white/10 rounded-sm" />
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <Button onClick={handleSaveSettings} className="bg-[#d5001c] hover:bg-[#b30017] text-white rounded-sm w-full uppercase tracking-widest text-xs h-12">
+                    <Save className="w-4 h-4 mr-2" /> Parameter Speichern
+                  </Button>
                 </div>
 
                 <div className="space-y-4">
-                  <Label className="text-gray-400 uppercase text-[10px] tracking-widest">Schichtpausen (ETA Korrektur)</Label>
-                  <div className="space-y-2">
+                  <Label className="text-gray-400 uppercase text-[10px] tracking-widest">Schichtpausen Manuell</Label>
+                  
+                  {/* Break List */}
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                     {breaks.map(b => (
                       <div key={b.id} className="flex items-center justify-between p-3 bg-black border border-white/5 rounded-sm">
                         <div className="flex items-center gap-3">
                           <Clock className={`w-4 h-4 ${b.enabled ? 'text-[#d5001c]' : 'text-gray-700'}`} />
-                          <span className={`text-[10px] font-bold uppercase ${b.enabled ? 'text-white' : 'text-gray-700'}`}>{b.name} ({b.startTime}-{b.endTime})</span>
+                          <div>
+                            <p className={`text-[10px] font-bold uppercase ${b.enabled ? 'text-white' : 'text-gray-700'}`}>{b.name}</p>
+                            <p className="text-[9px] text-gray-500">{b.startTime} - {b.endTime}</p>
+                          </div>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => toggleBreak(b.id)} className="text-[10px] uppercase">{b.enabled ? 'Aktiv' : 'Inaktiv'}</Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => toggleBreak(b.id)} className="text-[9px] uppercase px-2 h-7">{b.enabled ? 'Aktiv' : 'An'}</Button>
+                          <Button variant="ghost" size="sm" onClick={() => removeBreak(b.id)} className="text-gray-600 hover:text-[#d5001c] h-7 w-7 p-0"><Trash2 className="w-3.5 h-3.5" /></Button>
+                        </div>
                       </div>
                     ))}
                   </div>
+
+                  {/* Add Break UI */}
+                  <div className="pt-4 border-t border-white/5 space-y-3">
+                    <Input placeholder="PAUSEN NAME (Z.B. MITTAG)" value={newBreakName} onChange={e => setNewBreakName(e.target.value.toUpperCase())} className="bg-black border-white/10 rounded-sm text-[10px]" />
+                    <div className="flex gap-2">
+                      <Input type="time" value={newBreakStart} onChange={e => setNewBreakStart(e.target.value)} className="bg-black border-white/10 rounded-sm text-[10px]" />
+                      <Input type="time" value={newBreakEnd} onChange={e => setNewBreakEnd(e.target.value)} className="bg-black border-white/10 rounded-sm text-[10px]" />
+                      <Button onClick={handleAddBreak} variant="outline" className="border-white/10 text-white rounded-sm h-10 px-3"><Plus className="w-4 h-4" /></Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <Button onClick={handleSaveSettings} className="bg-[#d5001c] hover:bg-[#b30017] text-white rounded-sm w-full uppercase tracking-widest text-xs h-12">
-                <Save className="w-4 h-4 mr-2" /> Speichern
-              </Button>
             </motion.section>
           )}
         </AnimatePresence>
 
         {/* Main Interface */}
-        <div className="grid lg:grid-cols-12 gap-8">
+        <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-start">
           <div className="lg:col-span-5 space-y-6">
             <StationInput
               value={currentStation}
               onChange={setCurrentStation}
+              minStation={minStation}
               totalStations={totalStations}
               label="Aktuelle Fahrzeugstation"
               icon={<Car className="w-5 h-5 text-[#d5001c]" />}
@@ -169,6 +203,7 @@ export function Home() {
             <StationInput
               value={targetStation}
               onChange={setTargetStation}
+              minStation={minStation}
               totalStations={totalStations}
               label="Ihre Arbeitsstation"
               icon={<MapPin className="w-5 h-5 text-[#d5001c]" />}
@@ -177,14 +212,19 @@ export function Home() {
               onFavoriteToggle={() => setFavoriteStation(favoriteStation === targetStation ? null : targetStation)}
             />
 
-            <Button onClick={() => addToWatchlist({ label: `VIN-${Math.floor(Math.random()*1000)}`, currentStation, targetStation })} className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-sm h-12 uppercase tracking-widest text-xs">
-              <Plus className="w-4 h-4 mr-2 text-[#d5001c]" /> Zur Watchlist hinzufügen
+            <Button onClick={() => addToWatchlist({ label: `PORSCHE-${Math.floor(Math.random()*1000)}`, currentStation, targetStation })} className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-sm h-12 uppercase tracking-widest text-[10px]">
+              <Plus className="w-4 h-4 mr-2" /> Zur Watchlist hinzufügen
             </Button>
           </div>
 
           <div className="lg:col-span-7 space-y-6">
             <CountdownDisplay result={arrivalResult} />
-            <ProductionLine currentStation={currentStation} targetStation={targetStation} totalStations={totalStations} />
+            <ProductionLine 
+              currentStation={currentStation} 
+              targetStation={targetStation} 
+              minStation={minStation}
+              totalStations={totalStations} 
+            />
           </div>
         </div>
 
@@ -192,7 +232,7 @@ export function Home() {
         <section className="space-y-4 pt-8 border-t border-white/10">
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-[#d5001c]" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-white">Fahrzeug Watchlist (Multi-Tracking)</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white">Fahrzeug Watchlist</h2>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -201,7 +241,7 @@ export function Home() {
             ))}
             {watchlist.length === 0 && (
               <div className="col-span-full py-12 text-center bg-[#111] border border-dashed border-white/10 rounded-sm">
-                <p className="text-gray-600 text-xs uppercase tracking-widest">Keine Fahrzeuge in der Liste</p>
+                <p className="text-gray-600 text-[10px] uppercase tracking-widest font-bold">Keine Fahrzeuge aktiv</p>
               </div>
             )}
           </div>
@@ -212,24 +252,24 @@ export function Home() {
 }
 
 function WatchlistCard({ vehicle, onRemove }: { vehicle: TrackedVehicle, onRemove: (id: string) => void }) {
-  const { totalStations, secondsPerStation, breaks } = useStationStore();
-  const res = useMemo(() => calculateArrivalTime(vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, breaks), [vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, breaks]);
+  const { totalStations, secondsPerStation, breaks, minStation } = useStationStore();
+  const res = useMemo(() => calculateArrivalTime(vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, minStation, breaks), [vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, minStation, breaks]);
   
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-[#111] border border-white/5 rounded-sm flex flex-col justify-between h-32 relative group">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-[#111] border border-white/5 rounded-sm flex flex-col justify-between h-32 relative group">
       <div className="flex justify-between items-start">
         <div className="space-y-1">
-          <p className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{vehicle.label}</p>
+          <p className="text-[9px] text-gray-500 uppercase font-bold tracking-tighter">{vehicle.label}</p>
           <p className="text-sm font-bold text-white uppercase tracking-widest">ETA: {formatTime(res.estimatedArrivalTime)}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => onRemove(vehicle.id)} className="h-6 w-6 text-gray-700 hover:text-[#d5001c] opacity-0 group-hover:opacity-100 transition-opacity">
-          <Trash2 className="w-3 h-3" />
+        <Button variant="ghost" size="icon" onClick={() => onRemove(vehicle.id)} className="h-6 w-6 text-gray-700 hover:text-[#d5001c]">
+          <Trash2 className="w-3.5 h-3.5" />
         </Button>
       </div>
       
       <div className="space-y-2">
-        <div className="flex justify-between text-[10px] uppercase font-bold text-gray-500">
-          <span>Stat: {vehicle.currentStation}</span>
+        <div className="flex justify-between text-[9px] uppercase font-bold text-gray-500">
+          <span>Pos: {vehicle.currentStation}</span>
           <span className={res.isPassed ? 'text-green-500' : 'text-[#d5001c]'}>{res.isPassed ? 'Ankunft' : res.formattedTime}</span>
         </div>
         <div className="h-1 bg-gray-900 rounded-full overflow-hidden">

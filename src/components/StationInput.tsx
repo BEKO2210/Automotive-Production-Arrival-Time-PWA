@@ -14,12 +14,12 @@ interface StationInputProps {
   value: number;
   /** Callback bei Änderung */
   onChange: (value: number) => void;
+  /** Start-Station */
+  minStation: number;
   /** Gesamtanzahl Stationen */
   totalStations: number;
   /** Label für das Eingabefeld */
   label: string;
-  /** Beschreibungstext */
-  description?: string;
   /** Icon-Komponente */
   icon?: React.ReactNode;
   /** Ob diese Station als Favorit markiert werden kann */
@@ -39,6 +39,7 @@ interface StationInputProps {
 export function StationInput({
   value,
   onChange,
+  minStation,
   totalStations,
   label,
   icon,
@@ -73,22 +74,22 @@ export function StationInput({
     // Nur gültige Zahlen akzeptieren
     const numValue = parseInt(rawValue, 10);
     if (!isNaN(numValue)) {
-      const clampedValue = Math.max(1, Math.min(totalStations, numValue));
+      const clampedValue = Math.max(minStation, Math.min(totalStations, numValue));
       onChange(clampedValue);
     }
-  }, [onChange, totalStations]);
+  }, [onChange, minStation, totalStations]);
 
   /**
    * Handler für Blur-Event (Validierung)
    */
   const handleBlur = useCallback(() => {
     const numValue = parseInt(inputValue, 10);
-    if (isNaN(numValue) || numValue < 1) {
-      onChange(1);
+    if (isNaN(numValue) || numValue < minStation) {
+      onChange(minStation);
     } else if (numValue > totalStations) {
       onChange(totalStations);
     }
-  }, [inputValue, onChange, totalStations]);
+  }, [inputValue, onChange, minStation, totalStations]);
 
   /**
    * Handler für Favoriten-Button
@@ -149,7 +150,7 @@ export function StationInput({
         <div className="relative w-full md:w-40 shrink-0">
           <Input
             type="number"
-            min={1}
+            min={minStation}
             max={totalStations}
             value={inputValue}
             onChange={handleInputChange}
@@ -167,13 +168,13 @@ export function StationInput({
           <Slider
             value={[value]}
             onValueChange={handleSliderChange}
-            min={1}
+            min={minStation}
             max={totalStations}
             step={1}
             className="w-full h-10"
           />
           <div className="flex justify-between mt-2 text-[10px] uppercase font-bold text-gray-600 tracking-widest">
-            <span>Start</span>
+            <span>Start ({minStation})</span>
             <span>Ende ({totalStations})</span>
           </div>
         </div>
@@ -183,9 +184,9 @@ export function StationInput({
       <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
         <MapPin className="w-4 h-4" />
         <span>
-          {value === 1 && 'Start der Produktionslinie'}
+          {value === minStation && 'Vorbereitung / Start'}
           {value === totalStations && 'Ende der Produktionslinie'}
-          {value > 1 && value < totalStations && `Station ${value} von ${totalStations}`}
+          {value > minStation && value < totalStations && `Station ${value} von ${totalStations}`}
         </span>
       </div>
     </motion.div>

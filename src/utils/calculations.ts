@@ -48,10 +48,8 @@ export function calculateArrivalTime(
   }
 
   const nowTimestamp = Date.now();
-  const elapsedSecondsReal = (nowTimestamp - lastUpdateTimestamp) / 1000;
   
   // Wir berechnen wie viele Stationen das Band seit der Eingabe gefahren ist.
-  // Dabei müssen wir eigentlich auch Pausen berücksichtigen, die SEIT der Eingabe vergangen sind.
   const elapsedWorkSeconds = calculateWorkSecondsBetween(lastUpdateTimestamp, nowTimestamp, breaks);
   const stationsTraveled = elapsedWorkSeconds / secondsPerStation;
   
@@ -88,10 +86,8 @@ function calculateWorkSecondsBetween(startTs: number, endTs: number, breaks: Shi
   if (endTs <= startTs) return 0;
   
   let workSeconds = 0;
-  const activeBreaks = getActiveBreaksRange(startTs, endTs, breaks);
+  const activeBreaks = getActiveBreaksRange(startTs, breaks);
   
-  // Millisekunden-genau für maximale Porsche-Präzision
-  // (In der Praxis reicht Sekunden-Schleife für Performance)
   let current = startTs;
   const step = 1000; // 1 Sekunde
   
@@ -115,7 +111,6 @@ function calculateTimeAfterWorkSeconds(startTs: number, workSeconds: number, bre
   let currentTs = startTs;
   let remaining = workSeconds;
   
-  // Wir schauen 24 Stunden in die Zukunft
   const futureLimit = startTs + (24 * 60 * 60 * 1000);
   const activeBreaks = breaks.filter(b => b.enabled).map(b => {
     const [sh, sm] = b.startTime.split(':').map(Number);
@@ -137,7 +132,7 @@ function calculateTimeAfterWorkSeconds(startTs: number, workSeconds: number, bre
   return new Date(currentTs);
 }
 
-function getActiveBreaksRange(startTs: number, endTs: number, breaks: ShiftBreak[]) {
+function getActiveBreaksRange(startTs: number, breaks: ShiftBreak[]) {
   return breaks.filter(b => b.enabled).map(b => {
     const [sh, sm] = b.startTime.split(':').map(Number);
     const [eh, em] = b.endTime.split(':').map(Number);

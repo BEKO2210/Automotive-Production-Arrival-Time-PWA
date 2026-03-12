@@ -116,8 +116,16 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
+      animate={{ 
+        opacity: 1, 
+        scale: 1,
+        borderColor: result.remainingStations === 1 ? '#d5001c' : 'rgba(255,255,255,0.05)',
+        backgroundColor: result.remainingStations === 1 ? 'rgba(213,0,28,0.05)' : '#111'
+      }}
+      transition={{ 
+        duration: 0.5,
+        borderColor: { repeat: Infinity, duration: 1, repeatType: 'reverse' }
+      }}
       className={`bg-[#111] rounded-sm p-6 md:p-10 border border-white/5 ${className}`}
     >
       {/* Header */}

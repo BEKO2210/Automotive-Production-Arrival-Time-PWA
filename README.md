@@ -1,51 +1,41 @@
-# Autoflow Tracker – Produktionslinien ETA
+# Autoflow Enterprise – Digitale Produktionssteuerung
 
-Willkommen beim **Autoflow Tracker**, Ihrem digitalen Assistenten für die Automobilproduktion. Diese App wurde speziell dafür entwickelt, Ihnen in Echtzeit die exakte Ankunftszeit eines Fahrzeugs an Ihrer Station zu berechnen. 
-
-Mit ihrem klaren, industriellen Design fügt sie sich nahtlos in den Produktionsalltag ein und liefert präzise Daten, um Ihre Abläufe effizienter zu gestalten.
+Willkommen beim **Autoflow Enterprise Tracker**, dem Hochpräzisions-Werkzeug für die Porsche Produktionslinie. Diese App wurde für maximale Effizienz im industriellen Einsatz entwickelt.
 
 ---
 
-## 🛠 Wie funktioniert die App?
+## 🚀 Neue Enterprise-Funktionen
 
-Die Bedienung ist auf maximale Effizienz ausgelegt:
+### 1. Intelligente Pausen-Logik (Präzise ETA)
+Die App kennt nun Ihren Schichtplan. Wenn eine Pause (z. B. Frühstück oder Mittag) ansteht, wird der Countdown und die Ankunftszeit automatisch korrigiert. Sie sehen immer die **echte Uhrzeit**, zu der das Fahrzeug bei Ihnen eintrifft.
 
-1. **Aktuelle Fahrzeugstation:** 
-   Geben Sie hier die Station ein, an der sich das Fahrzeug momentan auf dem Band befindet. Sie können die Zahl eintippen oder den Schieberegler nutzen.
+### 2. Fahrzeug-Watchlist (Multi-Tracking)
+Sie müssen mehrere Fahrzeuge gleichzeitig im Blick behalten?
+- Geben Sie die Daten ein und klicken Sie auf **"ZUR WATCHLIST HINZUFÜGEN"**.
+- Unter dem Haupt-Tracker erscheint eine Liste aller beobachteten Fahrzeuge mit deren individuellen Ankunftszeiten.
+- So planen Sie Ihre Materialvorbereitung für die nächsten Stunden perfekt im Voraus.
 
-2. **Ihre Arbeitsstation:**
-   Tragen Sie hier Ihre eigene Station ein. 
-   *Tipp:* Wenn Sie immer an derselben Station arbeiten, klicken Sie auf das **Stern-Symbol (Favorit)**. Die App merkt sich Ihre Station für den nächsten Tag!
-
-3. **Ergebnis ablesen:**
-   Sobald Sie beide Stationen eingegeben haben, berechnet die App automatisch:
-   - Den **Countdown** in Stunden, Minuten und Sekunden.
-   - Die exakte **Uhrzeit**, zu der das Fahrzeug bei Ihnen ankommt.
-   - Die **Differenz der Stationen**.
-
----
-
-## ⚙️ Einstellungen & Taktzeit anpassen
-
-Oben rechts finden Sie das **Zahnrad-Symbol (Einstellungen)**. Hier können Sie die Produktionsparameter jederzeit an die aktuelle Schicht anpassen:
-
-- **Gesamtstationen:** Die Gesamtzahl der Stationen auf Ihrer Linie.
-- **Zeit pro Station (Taktzeit):** Wie lange das Band für eine Station benötigt (z.B. 2 Minuten und 42 Sekunden).
-
-*Klicken Sie auf Speichern, um die neuen Werte für die Berechnung zu übernehmen.*
+### 3. Industrie-Optimierung (Immer im Fokus)
+- **Bildschirm bleibt an:** Solange die App im Vordergrund ist, schaltet sich das Display nicht aus (Wake Lock).
+- **Haptisches Feedback:** Das Gerät vibriert kurz, wenn ein Auto nur noch 1 Station entfernt ist, und gibt ein längeres Signal bei Ankunft.
+- **Optischer Alarm:** Der Bildschirmrand pulsiert rot, sobald ein Fahrzeug unmittelbar vor Ihrer Station steht.
 
 ---
 
-## 📱 App auf dem Smartphone/Tablet installieren (Offline-Nutzung)
+## 🛠 Bedienung
 
-Der Autoflow Tracker ist eine sogenannte "PWA" (Progressive Web App). Das bedeutet, Sie können die Webseite wie eine normale App auf Ihrem Gerät installieren. **Sie funktioniert danach komplett ohne Internetverbindung!**
-
-**So installieren Sie die App:**
-- **Apple (iPhone/iPad):** Öffnen Sie die Seite im Safari-Browser, tippen Sie unten in der Mitte auf das "Teilen"-Symbol (Viereck mit Pfeil nach oben) und wählen Sie **"Zum Home-Bildschirm"**.
-- **Android / Scanner:** Öffnen Sie die Seite im Chrome-Browser. Oft erscheint unten automatisch ein Banner "App installieren". Falls nicht, tippen Sie oben rechts auf die drei Punkte und wählen Sie **"App installieren"** oder **"Zum Startbildschirm hinzufügen"**.
-
-Nach der Installation finden Sie das Icon direkt bei Ihren anderen Apps.
+1. **Stationen eingeben:** Tragen Sie die aktuelle Position des Fahrzeugs und Ihre Zielstation ein.
+2. **Pausen verwalten:** Über das **Zahnrad-Symbol** können Sie Schichtpausen aktivieren oder deaktivieren.
+3. **Favoriten:** Speichern Sie Ihre eigene Station mit dem **Stern**, um sie jeden Tag sofort parat zu haben.
 
 ---
 
-*Entwickelt für höchste Präzision in der industriellen Fertigung.*
+## 📱 Installation & Offline-Nutzung
+Diese App ist eine **PWA** und benötigt nach der Installation **kein Internet**.
+
+- **iOS (Safari):** Teilen-Button -> "Zum Home-Bildschirm".
+- **Android (Chrome):** Menü -> "App installieren".
+
+---
+
+*Precision • Efficiency • Performance – Porsche Autoflow Enterprise*

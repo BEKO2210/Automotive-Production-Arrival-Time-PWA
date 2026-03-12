@@ -1,6 +1,6 @@
 /**
- * Berechnungsfunktionen für die Ankunftszeiten (Enterprise Edition)
- * Berücksichtigt Schichtpausen und Porsche Stations-Layout (-10 bis X)
+ * Berechnungsfunktionen für die Ankunftszeiten (Realtime Enterprise Edition)
+ * Berechnet Fahrzeugbewegungen live basierend auf verstrichener Zeit
  */
 
 import type { ShiftBreak } from '@/store/useStationStore';
@@ -14,23 +14,24 @@ export interface ArrivalResult {
   formattedTime: string;
   progressPercent: number;
   estimatedArrivalTime: Date;
+  liveCurrentStation: number; // Die aktuell berechnete Position (Gleitkommazahl)
 }
 
 /**
- * Berechnet die Ankunftszeit
+ * Berechnet die Ankunftszeit in Echtzeit
  */
 export function calculateArrivalTime(
-  currentStation: number,
+  enteredStation: number,
   targetStation: number,
   totalStations: number,
   secondsPerStation: number,
+  lastUpdateTimestamp: number,
   minStation: number = -10,
   breaks: ShiftBreak[] = []
 ): ArrivalResult {
-  // Validierung
   if (
-    isNaN(currentStation) || isNaN(targetStation) ||
-    currentStation < minStation || currentStation > totalStations ||
+    isNaN(enteredStation) || isNaN(targetStation) ||
+    enteredStation < minStation || enteredStation > totalStations ||
     targetStation < minStation || targetStation > totalStations
   ) {
     return {
@@ -42,58 +43,109 @@ export function calculateArrivalTime(
       formattedTime: '--:--:--',
       progressPercent: 0,
       estimatedArrivalTime: new Date(),
+      liveCurrentStation: enteredStation
     };
   }
 
-  const remainingStations = Math.max(0, targetStation - currentStation);
-  const isPassed = targetStation <= currentStation;
-  const remainingSeconds = isPassed ? 0 : remainingStations * secondsPerStation;
+  const nowTimestamp = Date.now();
+  const elapsedSecondsReal = (nowTimestamp - lastUpdateTimestamp) / 1000;
   
-  const now = new Date();
-  let currentCheckTime = now.getTime();
-  let workSecondsRemaining = remainingSeconds;
+  // Wir berechnen wie viele Stationen das Band seit der Eingabe gefahren ist.
+  // Dabei müssen wir eigentlich auch Pausen berücksichtigen, die SEIT der Eingabe vergangen sind.
+  const elapsedWorkSeconds = calculateWorkSecondsBetween(lastUpdateTimestamp, nowTimestamp, breaks);
+  const stationsTraveled = elapsedWorkSeconds / secondsPerStation;
   
-  const activeBreaksToday = breaks
-    .filter(b => b.enabled)
-    .map(b => {
-      const [startH, startM] = b.startTime.split(':').map(Number);
-      const [endH, endM] = b.endTime.split(':').map(Number);
-      const start = new Date(now);
-      start.setHours(startH, startM, 0, 0);
-      const end = new Date(now);
-      end.setHours(endH, endM, 0, 0);
-      return { start: start.getTime(), end: end.getTime() };
-    })
-    .sort((a, b) => a.start - b.start);
+  const liveCurrentStation = enteredStation + stationsTraveled;
+  const remainingStations = Math.max(0, targetStation - liveCurrentStation);
+  const isPassed = liveCurrentStation >= targetStation;
+  const remainingWorkSeconds = isPassed ? 0 : remainingStations * secondsPerStation;
+  
+  // Berechnung der ETA ab JETZT
+  const arrivalTime = calculateTimeAfterWorkSeconds(nowTimestamp, remainingWorkSeconds, breaks);
+  const totalSecondsUntilArrival = Math.max(0, Math.floor((arrivalTime.getTime() - nowTimestamp) / 1000));
 
-  while (workSecondsRemaining > 0) {
-    currentCheckTime += 1000;
-    const inBreak = activeBreaksToday.find(b => 
-      currentCheckTime >= b.start && currentCheckTime <= b.end
-    );
-    if (!inBreak) {
-      workSecondsRemaining -= 1;
-    }
-  }
-
-  const totalSecondsIncludingBreaks = Math.floor((currentCheckTime - now.getTime()) / 1000);
-  const estimatedArrivalTime = new Date(currentCheckTime);
-  
-  // Fortschrittsberechnung angepasst an negativen Startbereich
   const totalRange = totalStations - minStation;
-  const currentOffset = currentStation - minStation;
+  const currentOffset = liveCurrentStation - minStation;
   const progressPercent = Math.min(100, Math.max(0, (currentOffset / totalRange) * 100));
 
   return {
-    remainingStations,
-    remainingSeconds,
-    totalSecondsIncludingBreaks,
+    remainingStations: Math.ceil(remainingStations),
+    remainingSeconds: Math.floor(remainingWorkSeconds),
+    totalSecondsIncludingBreaks: totalSecondsUntilArrival,
     isPassed,
     isValid: true,
-    formattedTime: formatDuration(totalSecondsIncludingBreaks),
+    formattedTime: formatDuration(totalSecondsUntilArrival),
     progressPercent,
-    estimatedArrivalTime,
+    estimatedArrivalTime: arrivalTime,
+    liveCurrentStation: liveCurrentStation
   };
+}
+
+/**
+ * Berechnet wie viele "Arbeitssekunden" zwischen zwei Zeitpunkten liegen (ohne Pausen)
+ */
+function calculateWorkSecondsBetween(startTs: number, endTs: number, breaks: ShiftBreak[]): number {
+  if (endTs <= startTs) return 0;
+  
+  let workSeconds = 0;
+  const activeBreaks = getActiveBreaksRange(startTs, endTs, breaks);
+  
+  // Millisekunden-genau für maximale Porsche-Präzision
+  // (In der Praxis reicht Sekunden-Schleife für Performance)
+  let current = startTs;
+  const step = 1000; // 1 Sekunde
+  
+  while (current < endTs) {
+    const inBreak = activeBreaks.some(b => current >= b.start && current < b.end);
+    if (!inBreak) {
+      workSeconds += 1;
+    }
+    current += step;
+  }
+  
+  return workSeconds;
+}
+
+/**
+ * Berechnet den Zeitpunkt nach X Arbeitssekunden (überspringt Pausen)
+ */
+function calculateTimeAfterWorkSeconds(startTs: number, workSeconds: number, breaks: ShiftBreak[]): Date {
+  if (workSeconds <= 0) return new Date(startTs);
+  
+  let currentTs = startTs;
+  let remaining = workSeconds;
+  
+  // Wir schauen 24 Stunden in die Zukunft
+  const futureLimit = startTs + (24 * 60 * 60 * 1000);
+  const activeBreaks = breaks.filter(b => b.enabled).map(b => {
+    const [sh, sm] = b.startTime.split(':').map(Number);
+    const [eh, em] = b.endTime.split(':').map(Number);
+    const s = new Date(startTs); s.setHours(sh, sm, 0, 0);
+    const e = new Date(startTs); e.setHours(eh, em, 0, 0);
+    if (e < s) e.setDate(e.getDate() + 1);
+    return { start: s.getTime(), end: e.getTime() };
+  });
+
+  while (remaining > 0 && currentTs < futureLimit) {
+    currentTs += 1000;
+    const inBreak = activeBreaks.some(b => currentTs > b.start && currentTs <= b.end);
+    if (!inBreak) {
+      remaining -= 1;
+    }
+  }
+  
+  return new Date(currentTs);
+}
+
+function getActiveBreaksRange(startTs: number, endTs: number, breaks: ShiftBreak[]) {
+  return breaks.filter(b => b.enabled).map(b => {
+    const [sh, sm] = b.startTime.split(':').map(Number);
+    const [eh, em] = b.endTime.split(':').map(Number);
+    const s = new Date(startTs); s.setHours(sh, sm, 0, 0);
+    const e = new Date(startTs); e.setHours(eh, em, 0, 0);
+    if (e < s) e.setDate(e.getDate() + 1);
+    return { start: s.getTime(), end: e.getTime() };
+  });
 }
 
 export function formatDuration(totalSeconds: number): string {

@@ -1,7 +1,6 @@
 /**
- * Home Page (Enterprise Edition)
- * Inklusive Pausen-Management, Watchlist, Haptik und Porsche-Präzision
- * Angepasst für Porsche Stations-Bereich (-10 bis X)
+ * Home Page (Enterprise Realtime Edition)
+ * Takt-basierte Live-Aktualisierung der Fahrzeugposition
  */
 import { useMemo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,25 +19,30 @@ import { CountdownDisplay } from '@/components/CountdownDisplay';
 import { ProductionLine } from '@/components/ProductionLine';
 
 export function Home() {
-  // Store-States
   const {
     currentStation, targetStation, favoriteStation, totalStations, secondsPerStation,
-    breaks, watchlist, minStation,
+    breaks, watchlist, minStation, lastUpdateTimestamp,
     setCurrentStation, setTargetStation, setFavoriteStation, setTotalStations,
     setSecondsPerStation, toggleBreak, addBreak, removeBreak, addToWatchlist, removeFromWatchlist
   } = useStationStore();
 
   const [showSettings, setShowSettings] = useState(false);
+  const [ticker, setTicker] = useState(Date.now());
 
   // Settings State
   const [editTotal, setEditTotal] = useState(totalStations.toString());
   const [editMins, setEditMins] = useState(Math.floor(secondsPerStation / 60).toString());
   const [editSecs, setEditSecs] = useState((secondsPerStation % 60).toString());
   
-  // New Break State
   const [newBreakName, setNewBreakName] = useState('');
   const [newBreakStart, setNewBreakStart] = useState('09:00');
   const [newBreakEnd, setNewBreakEnd] = useState('09:15');
+
+  // Echtzeit-Ticker (erzwingt Re-Render jede Sekunde)
+  useEffect(() => {
+    const interval = setInterval(() => setTicker(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     setEditTotal(totalStations.toString());
@@ -59,11 +63,19 @@ export function Home() {
     }
   };
 
+  // Berechnung nutzt jetzt den lastUpdateTimestamp und den Ticker für Echtzeit
   const arrivalResult = useMemo(() => {
-    return calculateArrivalTime(currentStation, targetStation, totalStations, secondsPerStation, minStation, breaks);
-  }, [currentStation, targetStation, totalStations, secondsPerStation, minStation, breaks]);
+    return calculateArrivalTime(
+      currentStation, 
+      targetStation, 
+      totalStations, 
+      secondsPerStation, 
+      lastUpdateTimestamp,
+      minStation, 
+      breaks
+    );
+  }, [currentStation, targetStation, totalStations, secondsPerStation, lastUpdateTimestamp, minStation, breaks, ticker]);
 
-  // Effekt für Vibration und Visual Alerts
   useEffect(() => {
     if (arrivalResult.remainingStations === 1 && !arrivalResult.isPassed) {
       if ('vibrate' in navigator) navigator.vibrate(200);
@@ -72,7 +84,6 @@ export function Home() {
     }
   }, [arrivalResult.remainingStations, arrivalResult.isPassed, arrivalResult.isValid]);
 
-  // Wake Lock API (Hält Bildschirm an)
   useEffect(() => {
     let wakeLock: any = null;
     const requestWakeLock = async () => {
@@ -97,7 +108,6 @@ export function Home() {
         ? 'pulse-red 2s infinite' 
         : 'none'
     }}>
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
         <div className="max-w-5xl mx-auto px-3 py-3 md:py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -110,7 +120,6 @@ export function Home() {
               </h1>
             </div>
           </div>
-
           <Button variant="ghost" size="icon" onClick={() => setShowSettings(!showSettings)} className="text-gray-400 hover:text-white h-8 w-8">
             <Settings2 className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
@@ -119,7 +128,6 @@ export function Home() {
 
       <main className="max-w-5xl mx-auto px-2 py-4 md:py-10 space-y-6 md:space-y-8">
         
-        {/* Settings Panel */}
         <AnimatePresence>
           {showSettings && (
             <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="p-6 bg-[#111] border border-white/10 rounded-sm space-y-6 overflow-hidden">
@@ -153,8 +161,6 @@ export function Home() {
 
                 <div className="space-y-4">
                   <Label className="text-gray-400 uppercase text-[10px] tracking-widest">Schichtpausen Manuell</Label>
-                  
-                  {/* Break List */}
                   <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                     {breaks.map(b => (
                       <div key={b.id} className="flex items-center justify-between p-3 bg-black border border-white/5 rounded-sm">
@@ -172,8 +178,6 @@ export function Home() {
                       </div>
                     ))}
                   </div>
-
-                  {/* Add Break UI */}
                   <div className="pt-4 border-t border-white/5 space-y-3">
                     <Input placeholder="PAUSEN NAME (Z.B. MITTAG)" value={newBreakName} onChange={e => setNewBreakName(e.target.value.toUpperCase())} className="bg-black border-white/10 rounded-sm text-[10px]" />
                     <div className="flex gap-2">
@@ -188,7 +192,6 @@ export function Home() {
           )}
         </AnimatePresence>
 
-        {/* Main Interface */}
         <div className="grid lg:grid-cols-12 gap-6 md:gap-8 items-start">
           <div className="lg:col-span-5 space-y-6">
             <StationInput
@@ -220,7 +223,7 @@ export function Home() {
           <div className="lg:col-span-7 space-y-6">
             <CountdownDisplay result={arrivalResult} />
             <ProductionLine 
-              currentStation={currentStation} 
+              currentStation={arrivalResult.liveCurrentStation} 
               targetStation={targetStation} 
               minStation={minStation}
               totalStations={totalStations} 
@@ -228,16 +231,14 @@ export function Home() {
           </div>
         </div>
 
-        {/* Watchlist Section */}
         <section className="space-y-4 pt-8 border-t border-white/10">
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-[#d5001c]" />
             <h2 className="text-sm font-bold uppercase tracking-widest text-white">Fahrzeug Watchlist</h2>
           </div>
-          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {watchlist.map(v => (
-              <WatchlistCard key={v.id} vehicle={v} onRemove={removeFromWatchlist} />
+              <WatchlistCard key={v.id} vehicle={v} onRemove={removeFromWatchlist} ticker={ticker} />
             ))}
             {watchlist.length === 0 && (
               <div className="col-span-full py-12 text-center bg-[#111] border border-dashed border-white/10 rounded-sm">
@@ -251,9 +252,17 @@ export function Home() {
   );
 }
 
-function WatchlistCard({ vehicle, onRemove }: { vehicle: TrackedVehicle, onRemove: (id: string) => void }) {
+function WatchlistCard({ vehicle, onRemove, ticker }: { vehicle: TrackedVehicle, onRemove: (id: string) => void, ticker: number }) {
   const { totalStations, secondsPerStation, breaks, minStation } = useStationStore();
-  const res = useMemo(() => calculateArrivalTime(vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, minStation, breaks), [vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, minStation, breaks]);
+  const res = useMemo(() => calculateArrivalTime(
+    vehicle.currentStation, 
+    vehicle.targetStation, 
+    totalStations, 
+    secondsPerStation, 
+    vehicle.lastUpdateTimestamp, 
+    minStation, 
+    breaks
+  ), [vehicle.currentStation, vehicle.targetStation, totalStations, secondsPerStation, vehicle.lastUpdateTimestamp, minStation, breaks, ticker]);
   
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-[#111] border border-white/5 rounded-sm flex flex-col justify-between h-32 relative group">
@@ -266,10 +275,9 @@ function WatchlistCard({ vehicle, onRemove }: { vehicle: TrackedVehicle, onRemov
           <Trash2 className="w-3.5 h-3.5" />
         </Button>
       </div>
-      
       <div className="space-y-2">
         <div className="flex justify-between text-[9px] uppercase font-bold text-gray-500">
-          <span>Pos: {vehicle.currentStation}</span>
+          <span>Stat: {res.liveCurrentStation.toFixed(1)}</span>
           <span className={res.isPassed ? 'text-green-500' : 'text-[#d5001c]'}>{res.isPassed ? 'Ankunft' : res.formattedTime}</span>
         </div>
         <div className="h-1 bg-gray-900 rounded-full overflow-hidden">

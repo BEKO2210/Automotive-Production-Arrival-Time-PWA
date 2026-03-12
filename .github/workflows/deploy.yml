@@ -1,0 +1,64 @@
+# GitHub Action für Deployment zu GitHub Pages
+# Dieses Workflow baut die Vite-App und stellt sie auf GitHub Pages bereit
+
+name: Deploy to GitHub Pages
+
+on:
+  # Auslöser bei jedem Push auf den 'main' Branch
+  push:
+    branches: ["main"]
+
+  # Erlaubt manuelles Auslösen über das GitHub Actions Tab
+  workflow_dispatch:
+
+# Berechtigungen für GitHub Pages Deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nur eine laufende Bereitstellung gleichzeitig erlauben (Vermeidung von Race Conditions)
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Build-Job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Dependencies installieren
+        run: npm install
+
+      - name: Projekt bauen
+        run: npm run build
+
+      - name: GitHub Pages konfigurieren
+        uses: actions/configure-pages@v4
+
+      - name: Build-Artefakt hochladen
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Vite baut standardmäßig in das 'dist' Verzeichnis
+          path: './dist'
+
+  # Deployment-Job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Auf GitHub Pages bereitstellen
+        id: deployment
+        uses: actions/deploy-pages@v4

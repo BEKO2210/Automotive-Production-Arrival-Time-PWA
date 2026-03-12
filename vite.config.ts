@@ -14,7 +14,7 @@ const isCiBuild = process.env.GITHUB_ACTIONS === 'true';
 // https://vitejs.dev/config/
 export default defineConfig({
   // GitHub Pages benötigt den Repo-Pfad als Base auf CI
-  base: isCiBuild && repoName ? `/${repoName}/` : '/',
+  base: isCiBuild && repoName ? `/${repoName}/` : '/Automotive-Production-Arrival-Time-PWA/',
 
   plugins: [
     // React Plugin

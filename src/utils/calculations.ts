@@ -96,7 +96,7 @@ export function calculateArrivalTime(
 function calculateWorkSecondsBetween(startTs: number, endTs: number, breaks: ShiftBreak[]): number {
   if (endTs <= startTs) return 0;
   
-  const activeBreaks = getActiveBreaksRange(startTs, endTs, breaks);
+  const activeBreaks = getActiveBreaksRange(startTs, breaks);
   let totalPauseSeconds = 0;
 
   activeBreaks.forEach(b => {

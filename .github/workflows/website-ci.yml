@@ -1,20 +1,10 @@
-name: Website CI & Deploy
+name: Website CI
 
 on:
-  pull_request:
   push:
     branches:
       - '**'
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  pull_request:
 
 jobs:
   build-and-validate:
@@ -39,25 +29,3 @@ jobs:
 
       - name: Build website
         run: npm run build
-
-      - name: Upload Pages artifact
-        if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
-  deploy:
-    name: Deploy to GitHub Pages
-    if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
-    needs: build-and-validate
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4

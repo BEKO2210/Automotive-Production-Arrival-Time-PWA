@@ -41,7 +41,6 @@ export function StationInput({
   onChange,
   totalStations,
   label,
-  description,
   icon,
   showFavorite = false,
   isFavorite = false,

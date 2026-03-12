@@ -1,0 +1,36 @@
+# Node.js dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vite specific
+*.log
+*.sqlite
+.vercel
+.netlify
+
+# Build outputs
+dist
+dist-ssr
+*.js
+*.map
+*.d.ts
+
+# Misc
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local

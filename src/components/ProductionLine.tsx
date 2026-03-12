@@ -39,16 +39,16 @@ export function ProductionLine({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className={`bg-[#1a1a1a] rounded-2xl p-6 md:p-8 ${className}`}
+      className={`bg-[#1a1a1a] rounded-sm p-6 md:p-8 ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#d5001c]/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-sm bg-[#d5001c]/20 flex items-center justify-center">
             <Factory className="w-5 h-5 text-[#d5001c]" />
           </div>
           <div>
-            <h3 className="text-white text-lg md:text-xl font-semibold tracking-wide">
+            <h3 className="text-white text-lg md:text-xl font-semibold tracking-wide uppercase tracking-widest">
               Produktionslinie
             </h3>
             <p className="text-gray-400 text-sm">
@@ -58,7 +58,7 @@ export function ProductionLine({
         </div>
         
         {/* Status-Indikator */}
-        <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+        <div className={`px-4 py-2 rounded-sm text-xs font-bold uppercase tracking-widest ${
           isPassed
             ? 'bg-yellow-500/20 text-yellow-500'
             : isAtTarget
@@ -74,11 +74,11 @@ export function ProductionLine({
       {/* Produktionslinie-Visualisierung */}
       <div className="relative py-8">
         {/* Hauptlinie (Hintergrund) */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-3 bg-gray-800 rounded-full" />
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-2 bg-gray-800 rounded-sm" />
         
         {/* Fortschrittslinie (bis zur aktuellen Position) */}
         <motion.div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-3 bg-gradient-to-r from-[#d5001c] to-[#ff1a3c] rounded-full"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-2 bg-[#d5001c] rounded-sm"
           initial={{ width: 0 }}
           animate={{ width: `${currentPosition}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -87,7 +87,7 @@ export function ProductionLine({
         {/* Verbleibender Weg (von aktueller bis Zielstation) */}
         {!isPassed && !isAtTarget && (
           <motion.div
-            className="absolute top-1/2 -translate-y-1/2 h-3 bg-[#d5001c]/30 rounded-full"
+            className="absolute top-1/2 -translate-y-1/2 h-2 bg-[#d5001c]/30 rounded-sm"
             initial={{ left: `${currentPosition}%`, width: 0 }}
             animate={{ 
               left: `${currentPosition}%`, 
@@ -99,8 +99,8 @@ export function ProductionLine({
 
         {/* Start-Marker */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2">
-          <div className="w-8 h-8 rounded-full bg-gray-700 border-4 border-[#1a1a1a] flex items-center justify-center">
-            <span className="text-xs font-bold text-white">1</span>
+          <div className="w-8 h-8 rounded-sm bg-gray-700 border-2 border-[#1a1a1a] flex items-center justify-center">
+            <span className="text-[10px] font-bold text-white uppercase">Start</span>
           </div>
         </div>
 
@@ -114,20 +114,20 @@ export function ProductionLine({
           <div className="relative">
             {/* Pulsierender Ring */}
             <motion.div
-              className="absolute inset-0 rounded-full bg-[#d5001c]/30"
-              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+              className="absolute inset-0 rounded-sm bg-[#d5001c]/30"
+              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
             
             {/* Fahrzeug-Icon */}
-            <div className="w-12 h-12 rounded-full bg-[#d5001c] border-4 border-[#1a1a1a] flex items-center justify-center shadow-lg shadow-[#d5001c]/30">
-              <Car className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-sm bg-[#d5001c] border-2 border-black flex items-center justify-center shadow-lg shadow-[#d5001c]/30">
+              <Car className="w-5 h-5 text-white" />
             </div>
             
             {/* Stations-Label */}
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <span className="text-sm font-bold text-white bg-black/80 px-2 py-1 rounded">
-                Station {currentStation}
+              <span className="text-[10px] font-bold text-white bg-black/80 px-2 py-1 rounded-sm uppercase tracking-tighter">
+                Pos: {currentStation}
               </span>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function ProductionLine({
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <div className="relative">
-            <div className={`w-10 h-10 rounded-full border-4 border-[#1a1a1a] flex items-center justify-center ${
+            <div className={`w-10 h-10 rounded-sm border-2 border-black flex items-center justify-center ${
               isPassed || isAtTarget ? 'bg-green-500' : 'bg-white'
             }`}>
               <Flag className={`w-5 h-5 ${
@@ -151,7 +151,7 @@ export function ProductionLine({
             
             {/* Ziel-Label */}
             <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <span className={`text-sm font-bold px-2 py-1 rounded ${
+              <span className={`text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-tighter ${
                 isPassed || isAtTarget 
                   ? 'text-green-500 bg-green-500/10' 
                   : 'text-white bg-black/80'
@@ -164,8 +164,8 @@ export function ProductionLine({
 
         {/* End-Marker */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
-          <div className="w-8 h-8 rounded-full bg-gray-700 border-4 border-[#1a1a1a] flex items-center justify-center">
-            <span className="text-xs font-bold text-white">{totalStations}</span>
+          <div className="w-8 h-8 rounded-sm bg-gray-700 border-2 border-[#1a1a1a] flex items-center justify-center">
+            <span className="text-[10px] font-bold text-white">{totalStations}</span>
           </div>
         </div>
       </div>
@@ -190,16 +190,16 @@ export function ProductionLine({
       {/* Legende */}
       <div className="flex flex-wrap items-center justify-center gap-6 mt-8 pt-6 border-t border-gray-800">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-[#d5001c]" />
-          <span className="text-gray-400 text-sm">Aktuelle Position</span>
+          <div className="w-3 h-3 rounded-sm bg-[#d5001c]" />
+          <span className="text-gray-500 text-[10px] uppercase tracking-wider">Aktuelle Position</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-white" />
-          <span className="text-gray-400 text-sm">Zielstation</span>
+          <div className="w-3 h-3 rounded-sm bg-white" />
+          <span className="text-gray-500 text-[10px] uppercase tracking-wider">Zielstation</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-gray-700" />
-          <span className="text-gray-400 text-sm">Start/Ende</span>
+          <div className="w-3 h-3 rounded-sm bg-gray-700" />
+          <span className="text-gray-500 text-[10px] uppercase tracking-wider">Start/Ende</span>
         </div>
       </div>
     </motion.div>

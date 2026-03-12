@@ -105,13 +105,13 @@ export function StationInput({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`bg-[#1a1a1a] rounded-2xl p-6 md:p-8 ${className}`}
+      className={`bg-[#1a1a1a] rounded-sm p-6 md:p-8 ${className}`}
     >
       {/* Header mit Label und Icon */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           {icon && (
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#d5001c]/20">
+            <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-[#d5001c]/20">
               {icon}
             </div>
           )}
@@ -131,7 +131,7 @@ export function StationInput({
             variant="ghost"
             size="icon"
             onClick={handleFavoriteClick}
-            className={`rounded-full transition-all duration-300 ${
+            className={`rounded-sm transition-all duration-300 ${
               isFavorite
                 ? 'text-[#d5001c] hover:text-[#ff1a3c] hover:bg-[#d5001c]/20'
                 : 'text-gray-500 hover:text-white hover:bg-white/10'
@@ -158,7 +158,7 @@ export function StationInput({
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            className="text-center text-3xl md:text-4xl font-bold text-white bg-black border-2 border-gray-700 rounded-xl h-16 md:h-20 focus:border-[#d5001c] focus:ring-[#d5001c]/30 transition-all"
+            className="text-center text-3xl md:text-4xl font-bold text-white bg-black border-2 border-gray-700 rounded-sm h-16 md:h-20 focus:border-[#d5001c] focus:ring-[#d5001c]/30 transition-all"
             aria-label={`${label} eingeben`}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">

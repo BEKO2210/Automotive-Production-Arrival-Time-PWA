@@ -157,7 +157,7 @@ function calculateTimeAfterWorkSeconds(startTs: number, workSeconds: number, bre
   return new Date(currentTs + workSecondsRemaining * 1000);
 }
 
-function getActiveBreaksRange(startTs: number, endTs: number, breaks: ShiftBreak[]) {
+function getActiveBreaksRange(startTs: number, breaks: ShiftBreak[]) {
   // Erzeugt Pausen-Intervalle für den relevanten Zeitraum
   // (Einfachheitshalber heute und morgen, falls Schichtwechsel)
   const ranges: {start: number, end: number}[] = [];

@@ -2,17 +2,18 @@
  * Home Page (Enterprise Edition)
  * Inklusive Pausen-Management, Watchlist, Haptik und Porsche-Präzision
  */
-import { useMemo, useCallback, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Car, MapPin, RotateCcw, Download, Settings2, Save, X, 
-  Clock, AlertCircle, Plus, Trash2, List, Activity 
+  Car, MapPin, Settings2, Save, X, 
+  Clock, Plus, Trash2, List
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useStationStore, ShiftBreak, TrackedVehicle } from '@/store/useStationStore';
-import { calculateArrivalTime, formatDurationReadable, formatTime } from '@/utils/calculations';
+import { useStationStore } from '@/store/useStationStore';
+import type { TrackedVehicle } from '@/store/useStationStore';
+import { calculateArrivalTime, formatTime } from '@/utils/calculations';
 import { StationInput } from '@/components/StationInput';
 import { CountdownDisplay } from '@/components/CountdownDisplay';
 import { ProductionLine } from '@/components/ProductionLine';
@@ -23,12 +24,9 @@ export function Home() {
     currentStation, targetStation, favoriteStation, totalStations, secondsPerStation,
     breaks, watchlist,
     setCurrentStation, setTargetStation, setFavoriteStation, setTotalStations,
-    setSecondsPerStation, toggleBreak, addToWatchlist, removeFromWatchlist,
-    loadFavoriteAsTarget, reset
+    setSecondsPerStation, toggleBreak, addToWatchlist, removeFromWatchlist
   } = useStationStore();
 
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   // Settings State
@@ -55,13 +53,11 @@ export function Home() {
   // Effekt für Vibration und Visual Alerts
   useEffect(() => {
     if (arrivalResult.remainingStations === 1 && !arrivalResult.isPassed) {
-      // Haptisches Feedback bei 1 Station Abstand
       if ('vibrate' in navigator) navigator.vibrate(200);
     } else if (arrivalResult.isPassed && arrivalResult.isValid) {
-      // Längeres Vibrationsmuster bei Ankunft
       if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
     }
-  }, [arrivalResult.remainingStations, arrivalResult.isPassed]);
+  }, [arrivalResult.remainingStations, arrivalResult.isPassed, arrivalResult.isValid]);
 
   // Wake Lock API (Hält Bildschirm an)
   useEffect(() => {
@@ -76,7 +72,7 @@ export function Home() {
       }
     };
     requestWakeLock();
-    return () => { if (wakeLock) wakeLock.release(); };
+    return () => { if (wakeLock && wakeLock.release) wakeLock.release(); };
   }, []);
 
   return (
@@ -93,7 +89,7 @@ export function Home() {
               <Car className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold tracking-widest uppercase">
+              <h1 className="text-lg md:text-xl font-bold tracking-widest uppercase text-white">
                 Autoflow <span className="text-[#d5001c]">Enterprise</span>
               </h1>
             </div>
@@ -110,7 +106,7 @@ export function Home() {
         {/* Settings Panel */}
         <AnimatePresence>
           {showSettings && (
-            <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="p-6 bg-[#111] border border-white/10 rounded-sm space-y-6">
+            <motion.section initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="p-6 bg-[#111] border border-white/10 rounded-sm space-y-6 overflow-hidden">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold uppercase tracking-widest text-gray-500">Konfiguration</h2>
                 <Button variant="ghost" size="icon" onClick={() => setShowSettings(false)}><X className="w-5 h-5" /></Button>
@@ -149,7 +145,9 @@ export function Home() {
                   </div>
                 </div>
               </div>
-              <Button onClick={handleSaveSettings} className="bg-[#d5001c] hover:bg-[#b30017] text-white rounded-sm w-full uppercase tracking-widest text-xs h-12">Speichern</Button>
+              <Button onClick={handleSaveSettings} className="bg-[#d5001c] hover:bg-[#b30017] text-white rounded-sm w-full uppercase tracking-widest text-xs h-12">
+                <Save className="w-4 h-4 mr-2" /> Speichern
+              </Button>
             </motion.section>
           )}
         </AnimatePresence>
@@ -173,11 +171,11 @@ export function Home() {
               icon={<MapPin className="w-5 h-5 text-[#d5001c]" />}
               showFavorite
               isFavorite={favoriteStation === targetStation}
-              onFavoriteToggle={setFavoriteStation.bind(null, targetStation)}
+              onFavoriteToggle={() => setFavoriteStation(favoriteStation === targetStation ? null : targetStation)}
             />
 
             <Button onClick={() => addToWatchlist({ label: `VIN-${Math.floor(Math.random()*1000)}`, currentStation, targetStation })} className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-sm h-12 uppercase tracking-widest text-xs">
-              <Plus className="w-4 h-4 mr-2" /> Zur Watchlist hinzufügen
+              <Plus className="w-4 h-4 mr-2 text-[#d5001c]" /> Zur Watchlist hinzufügen
             </Button>
           </div>
 
@@ -191,7 +189,7 @@ export function Home() {
         <section className="space-y-4 pt-8 border-t border-white/10">
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-[#d5001c]" />
-            <h2 className="text-sm font-bold uppercase tracking-widest">Fahrzeug Watchlist (Multi-Tracking)</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white">Fahrzeug Watchlist (Multi-Tracking)</h2>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

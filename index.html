@@ -91,16 +91,5 @@
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Service Worker Registrierung (Fallback) -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js').catch(function(err) {
-            console.log('Service Worker Registrierung fehlgeschlagen: ', err);
-          });
-        });
-      }
-    </script>
   </body>
 </html>

@@ -14,7 +14,7 @@ export interface ArrivalResult {
   formattedTime: string;
   progressPercent: number;
   estimatedArrivalTime: Date;
-  liveCurrentStation: number; // Die aktuell berechnete Position (Gleitkommazahl)
+  liveCurrentStation: number; 
 }
 
 /**
@@ -29,6 +29,7 @@ export function calculateArrivalTime(
   minStation: number = -10,
   breaks: ShiftBreak[] = []
 ): ArrivalResult {
+  // Grund-Validierung
   if (
     isNaN(enteredStation) || isNaN(targetStation) ||
     enteredStation < minStation || enteredStation > totalStations ||
@@ -49,32 +50,35 @@ export function calculateArrivalTime(
 
   const nowTimestamp = Date.now();
   
-  // Wir berechnen wie viele Stationen das Band seit der Eingabe gefahren ist.
+  // 1. Berechne Arbeitssekunden seit der letzten Eingabe
   const elapsedWorkSeconds = calculateWorkSecondsBetween(lastUpdateTimestamp, nowTimestamp, breaks);
   const stationsTraveled = elapsedWorkSeconds / secondsPerStation;
   
-  const liveCurrentStation = enteredStation + stationsTraveled;
-  const remainingStations = Math.max(0, targetStation - liveCurrentStation);
-  const isPassed = liveCurrentStation >= targetStation;
-  const remainingWorkSeconds = isPassed ? 0 : remainingStations * secondsPerStation;
+  // 2. Bestimme Live-Position (Geklemmt am Band-Ende)
+  const liveCurrentStation = Math.min(totalStations, enteredStation + stationsTraveled);
   
-  // Berechnung der ETA ab JETZT
+  // 3. Bestimme Restweg und Status
+  const isPassed = liveCurrentStation >= targetStation;
+  const remainingStationsRaw = Math.max(0, targetStation - liveCurrentStation);
+  const remainingWorkSeconds = isPassed ? 0 : remainingStationsRaw * secondsPerStation;
+  
+  // 4. Berechne ETA ab JETZT (überspringt zukünftige Pausen)
   const arrivalTime = calculateTimeAfterWorkSeconds(nowTimestamp, remainingWorkSeconds, breaks);
   const totalSecondsUntilArrival = Math.max(0, Math.floor((arrivalTime.getTime() - nowTimestamp) / 1000));
 
-  // Fortschrittsberechnung: Wie viel des Weges zum Ziel ist geschafft?
+  // 5. Fortschritt relativ zum individuellen Auftrag
   const tripTotal = targetStation - enteredStation;
   const tripDone = liveCurrentStation - enteredStation;
   
   let progressPercent = 0;
-  if (tripTotal > 0) {
-    progressPercent = Math.min(100, Math.max(0, (tripDone / tripTotal) * 100));
-  } else if (liveCurrentStation >= targetStation) {
+  if (isPassed) {
     progressPercent = 100;
+  } else if (tripTotal > 0) {
+    progressPercent = Math.min(100, Math.max(0, (tripDone / tripTotal) * 100));
   }
 
   return {
-    remainingStations: Math.ceil(remainingStations),
+    remainingStations: Math.ceil(remainingStationsRaw),
     remainingSeconds: Math.floor(remainingWorkSeconds),
     totalSecondsIncludingBreaks: totalSecondsUntilArrival,
     isPassed,
@@ -87,67 +91,98 @@ export function calculateArrivalTime(
 }
 
 /**
- * Berechnet wie viele "Arbeitssekunden" zwischen zwei Zeitpunkten liegen (ohne Pausen)
+ * Berechnet Arbeitssekunden zwischen zwei Zeitpunkten (Pausen werden abgezogen)
  */
 function calculateWorkSecondsBetween(startTs: number, endTs: number, breaks: ShiftBreak[]): number {
   if (endTs <= startTs) return 0;
   
-  let workSeconds = 0;
-  const activeBreaks = getActiveBreaksRange(startTs, breaks);
-  
-  let current = startTs;
-  const step = 1000; // 1 Sekunde
-  
-  while (current < endTs) {
-    const inBreak = activeBreaks.some(b => current >= b.start && current < b.end);
-    if (!inBreak) {
-      workSeconds += 1;
+  const activeBreaks = getActiveBreaksRange(startTs, endTs, breaks);
+  let totalPauseSeconds = 0;
+
+  activeBreaks.forEach(b => {
+    // Überschneidung zwischen Zeitfenster [startTs, endTs] und Pause [b.start, b.end]
+    const overlapStart = Math.max(startTs, b.start);
+    const overlapEnd = Math.min(endTs, b.end);
+    
+    if (overlapStart < overlapEnd) {
+      totalPauseSeconds += (overlapEnd - overlapStart) / 1000;
     }
-    current += step;
-  }
+  });
   
-  return workSeconds;
+  const totalElapsedSeconds = (endTs - startTs) / 1000;
+  return Math.max(0, totalElapsedSeconds - totalPauseSeconds);
 }
 
 /**
  * Berechnet den Zeitpunkt nach X Arbeitssekunden (überspringt Pausen)
+ * Optimierte Logik ohne Sekundenschleife
  */
 function calculateTimeAfterWorkSeconds(startTs: number, workSeconds: number, breaks: ShiftBreak[]): Date {
   if (workSeconds <= 0) return new Date(startTs);
   
   let currentTs = startTs;
-  let remaining = workSeconds;
+  let workSecondsRemaining = workSeconds;
   
-  const futureLimit = startTs + (24 * 60 * 60 * 1000);
-  const activeBreaks = breaks.filter(b => b.enabled).map(b => {
-    const [sh, sm] = b.startTime.split(':').map(Number);
-    const [eh, em] = b.endTime.split(':').map(Number);
-    const s = new Date(startTs); s.setHours(sh, sm, 0, 0);
-    const e = new Date(startTs); e.setHours(eh, em, 0, 0);
-    if (e < s) e.setDate(e.getDate() + 1);
-    return { start: s.getTime(), end: e.getTime() };
-  });
+  // Sortierte aktive Pausen
+  const activeBreaks = breaks
+    .filter(b => b.enabled)
+    .map(b => {
+      const [sh, sm] = b.startTime.split(':').map(Number);
+      const [eh, em] = b.endTime.split(':').map(Number);
+      const s = new Date(startTs); s.setHours(sh, sm, 0, 0);
+      const e = new Date(startTs); e.setHours(eh, em, 0, 0);
+      if (e < s) e.setDate(e.getDate() + 1);
+      return { start: s.getTime(), end: e.getTime() };
+    })
+    .sort((a, b) => a.start - b.start);
 
-  while (remaining > 0 && currentTs < futureLimit) {
-    currentTs += 1000;
-    const inBreak = activeBreaks.some(b => currentTs > b.start && currentTs <= b.end);
-    if (!inBreak) {
-      remaining -= 1;
+  // Wir springen durch die Pausen
+  for (const b of activeBreaks) {
+    if (b.end <= currentTs) continue; // Pause liegt in der Vergangenheit
+
+    // Zeit bis zum Pausenbeginn
+    const timeUntilBreak = Math.max(0, b.start - currentTs) / 1000;
+    
+    if (workSecondsRemaining <= timeUntilBreak) {
+      // Ziel liegt vor oder genau am Pausenbeginn
+      return new Date(currentTs + workSecondsRemaining * 1000);
+    } else {
+      // Wir erreichen die Pause und müssen sie überspringen
+      workSecondsRemaining -= timeUntilBreak;
+      currentTs = b.end;
     }
   }
-  
-  return new Date(currentTs);
+
+  // Ziel liegt nach allen betrachteten Pausen
+  return new Date(currentTs + workSecondsRemaining * 1000);
 }
 
-function getActiveBreaksRange(startTs: number, breaks: ShiftBreak[]) {
-  return breaks.filter(b => b.enabled).map(b => {
-    const [sh, sm] = b.startTime.split(':').map(Number);
-    const [eh, em] = b.endTime.split(':').map(Number);
-    const s = new Date(startTs); s.setHours(sh, sm, 0, 0);
-    const e = new Date(startTs); e.setHours(eh, em, 0, 0);
-    if (e < s) e.setDate(e.getDate() + 1);
-    return { start: s.getTime(), end: e.getTime() };
+function getActiveBreaksRange(startTs: number, endTs: number, breaks: ShiftBreak[]) {
+  // Erzeugt Pausen-Intervalle für den relevanten Zeitraum
+  // (Einfachheitshalber heute und morgen, falls Schichtwechsel)
+  const ranges: {start: number, end: number}[] = [];
+  const days = [0, 1]; // Heute und morgen
+
+  days.forEach(dayOffset => {
+    breaks.filter(b => b.enabled).forEach(b => {
+      const [sh, sm] = b.startTime.split(':').map(Number);
+      const [eh, em] = b.endTime.split(':').map(Number);
+      
+      const s = new Date(startTs);
+      s.setDate(s.getDate() + dayOffset);
+      s.setHours(sh, sm, 0, 0);
+      
+      const e = new Date(startTs);
+      e.setDate(e.getDate() + dayOffset);
+      e.setHours(eh, em, 0, 0);
+      
+      if (e < s) e.setDate(e.getDate() + 1);
+      
+      ranges.push({ start: s.getTime(), end: e.getTime() });
+    });
   });
+
+  return ranges.sort((a, b) => a.start - b.start);
 }
 
 export function formatDuration(totalSeconds: number): string {

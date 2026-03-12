@@ -1,6 +1,6 @@
 /**
  * Zustand Store für die Enterprise-Stations-Verwaltung
- * Inklusive Echtzeit-Tracking-Logik
+ * Inklusive Echtzeit-Tracking-Logik und Fehler-Bereinigung
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -18,7 +18,7 @@ export interface TrackedVehicle {
   label: string;
   currentStation: number;
   targetStation: number;
-  lastUpdateTimestamp: number; // Zeitstempel der letzten manuellen Eingabe
+  lastUpdateTimestamp: number;
   createdAt: number;
 }
 
@@ -30,7 +30,7 @@ interface StationState {
   watchlist: TrackedVehicle[];
   currentStation: number;
   targetStation: number;
-  lastUpdateTimestamp: number; // Zeitstempel der Eingabe für den Haupt-Tracker
+  lastUpdateTimestamp: number;
   favoriteStation: number | null;
   
   setTotalStations: (total: number) => void;
@@ -68,16 +68,29 @@ export const useStationStore = create<StationState>()(
       lastUpdateTimestamp: Date.now(),
       favoriteStation: null,
       
-      setTotalStations: (total: number) => set({ totalStations: Math.max(get().minStation + 1, Math.round(total)) }),
+      setTotalStations: (total: number) => {
+        const { minStation } = get();
+        const newTotal = Math.max(minStation + 1, Math.round(total));
+        set({ totalStations: newTotal });
+        
+        // BUGFIX: Klemme alle Werte an das neue Maximum
+        const state = get();
+        if (state.currentStation > newTotal) set({ currentStation: newTotal });
+        if (state.targetStation > newTotal) set({ targetStation: newTotal });
+        if (state.favoriteStation && state.favoriteStation > newTotal) set({ favoriteStation: newTotal });
+      },
+      
       setSecondsPerStation: (seconds: number) => set({ secondsPerStation: Math.max(1, Math.round(seconds)) }),
       
       setBreaks: (breaks: ShiftBreak[]) => set({ breaks }),
+      
       toggleBreak: (id: string) => set({
         breaks: get().breaks.map(b => b.id === id ? { ...b, enabled: !b.enabled } : b)
       }),
+      
       addBreak: (name, start, end) => {
         const newBreak: ShiftBreak = {
-          id: Math.random().toString(36).substring(2, 9),
+          id: crypto.randomUUID?.() || Math.random().toString(36).substring(2, 9),
           name,
           startTime: start,
           endTime: end,
@@ -85,24 +98,26 @@ export const useStationStore = create<StationState>()(
         };
         set({ breaks: [...get().breaks, newBreak] });
       },
+      
       removeBreak: (id: string) => set({ breaks: get().breaks.filter(b => b.id !== id) }),
       
       addToWatchlist: (vehicle) => {
         const newVehicle: TrackedVehicle = {
           ...vehicle,
-          id: Math.random().toString(36).substring(2, 9),
+          id: crypto.randomUUID?.() || Math.random().toString(36).substring(2, 9),
           lastUpdateTimestamp: Date.now(),
           createdAt: Date.now(),
         };
         set({ watchlist: [newVehicle, ...get().watchlist] });
       },
+      
       removeFromWatchlist: (id: string) => set({ watchlist: get().watchlist.filter(v => v.id !== id) }),
       
       setCurrentStation: (station: number) => {
         const { minStation, totalStations } = get();
         set({ 
           currentStation: Math.max(minStation, Math.min(totalStations, Math.round(station))),
-          lastUpdateTimestamp: Date.now() // Aktualisiere Zeitstempel bei jeder Änderung
+          lastUpdateTimestamp: Date.now()
         });
       },
       

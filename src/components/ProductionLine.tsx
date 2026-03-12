@@ -39,26 +39,23 @@ export function ProductionLine({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className={`bg-[#1a1a1a] rounded-sm p-6 md:p-8 ${className}`}
+      className={`bg-[#1a1a1a] rounded-sm p-4 md:p-8 ${className}`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-[#d5001c]/20 flex items-center justify-center">
-            <Factory className="w-5 h-5 text-[#d5001c]" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-sm bg-[#d5001c]/20 flex items-center justify-center">
+            <Factory className="w-4 h-4 text-[#d5001c]" />
           </div>
           <div>
-            <h3 className="text-white text-lg md:text-xl font-semibold tracking-wide uppercase tracking-widest">
-              Produktionslinie
+            <h3 className="text-white text-sm md:text-xl font-semibold tracking-wide uppercase tracking-widest">
+              Linie
             </h3>
-            <p className="text-gray-400 text-sm">
-              Station {currentStation} → Station {targetStation}
-            </p>
           </div>
         </div>
         
         {/* Status-Indikator */}
-        <div className={`px-4 py-2 rounded-sm text-xs font-bold uppercase tracking-widest ${
+        <div className={`px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest ${
           isPassed
             ? 'bg-yellow-500/20 text-yellow-500'
             : isAtTarget
@@ -66,15 +63,15 @@ export function ProductionLine({
             : 'bg-[#d5001c]/20 text-[#d5001c]'
         }`}>
           {isPassed && 'Vorbei'}
-          {isAtTarget && 'Angekommen'}
-          {!isPassed && !isAtTarget && 'In Bewegung'}
+          {isAtTarget && 'Ziel'}
+          {!isPassed && !isAtTarget && 'Aktiv'}
         </div>
       </div>
 
       {/* Produktionslinie-Visualisierung */}
-      <div className="relative py-8">
+      <div className="relative py-8 mx-4">
         {/* Hauptlinie (Hintergrund) */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-2 bg-gray-800 rounded-sm" />
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1.5 bg-gray-800 rounded-sm" />
         
         {/* Fortschrittslinie (bis zur aktuellen Position) */}
         <motion.div

@@ -86,25 +86,25 @@ export function Home() {
     }}>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-4 md:py-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-[#d5001c] flex items-center justify-center rounded-sm">
-              <Car className="w-6 h-6 text-white" />
+        <div className="max-w-5xl mx-auto px-3 py-3 md:py-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-[#d5001c] flex items-center justify-center rounded-sm">
+              <Car className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold tracking-widest uppercase text-white">
+              <h1 className="text-base md:text-xl font-bold tracking-widest uppercase text-white">
                 Autoflow <span className="text-[#d5001c]">Enterprise</span>
               </h1>
             </div>
           </div>
 
-          <Button variant="ghost" size="icon" onClick={() => setShowSettings(!showSettings)} className="text-gray-400 hover:text-white">
-            <Settings2 className="w-5 h-5" />
+          <Button variant="ghost" size="icon" onClick={() => setShowSettings(!showSettings)} className="text-gray-400 hover:text-white h-8 w-8">
+            <Settings2 className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 md:py-10 space-y-8">
+      <main className="max-w-5xl mx-auto px-2 py-4 md:py-10 space-y-6 md:space-y-8">
         
         {/* Settings Panel */}
         <AnimatePresence>

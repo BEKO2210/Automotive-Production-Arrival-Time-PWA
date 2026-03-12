@@ -64,7 +64,9 @@
     font-size: 16px;
     /* Native App Feel */
     user-select: none;
+    -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 
   /* Porsche Precision Font für die Uhr */

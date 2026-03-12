@@ -105,23 +105,20 @@ export function StationInput({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className={`bg-[#1a1a1a] rounded-sm p-6 md:p-8 ${className}`}
+      className={`bg-[#1a1a1a] rounded-sm p-4 md:p-8 ${className}`}
     >
       {/* Header mit Label und Icon */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
           {icon && (
-            <div className="flex items-center justify-center w-10 h-10 rounded-sm bg-[#d5001c]/20">
+            <div className="flex items-center justify-center w-8 h-8 rounded-sm bg-[#d5001c]/20">
               {icon}
             </div>
           )}
           <div>
-            <h3 className="text-white text-lg md:text-xl font-semibold tracking-wide">
+            <h3 className="text-white text-sm md:text-xl font-semibold tracking-wide uppercase tracking-widest">
               {label}
             </h3>
-            {description && (
-              <p className="text-gray-400 text-sm mt-0.5">{description}</p>
-            )}
           </div>
         </div>
 

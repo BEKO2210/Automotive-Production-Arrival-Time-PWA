@@ -1,0 +1,218 @@
+/**
+ * Globale Styles für Autoflow Tracker
+ * Porsche-inspiriertes dunkles Theme
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Porsche-inspiriertes dunkles Theme */
+    --background: 0 0% 0%;          /* #000000 */
+    --foreground: 0 0% 100%;        /* #ffffff */
+    --card: 0 0% 10%;               /* #1a1a1a */
+    --card-foreground: 0 0% 100%;   /* #ffffff */
+    --popover: 0 0% 10%;            /* #1a1a1a */
+    --popover-foreground: 0 0% 100%; /* #ffffff */
+    --primary: 352 100% 42%;        /* #d5001c */
+    --primary-foreground: 0 0% 100%; /* #ffffff */
+    --secondary: 0 0% 10%;          /* #1a1a1a */
+    --secondary-foreground: 0 0% 100%; /* #ffffff */
+    --muted: 0 0% 15%;              /* #262626 */
+    --muted-foreground: 0 0% 60%;   /* #999999 */
+    --accent: 352 100% 42%;         /* #d5001c */
+    --accent-foreground: 0 0% 100%; /* #ffffff */
+    --destructive: 352 100% 42%;    /* #d5001c */
+    --destructive-foreground: 0 0% 100%; /* #ffffff */
+    --border: 0 0% 20%;             /* #333333 */
+    --input: 0 0% 15%;              /* #262626 */
+    --ring: 352 100% 42%;           /* #d5001c */
+    --radius: 1rem;
+    
+    /* Porsche-Farben */
+    --porsche-black: #000000;
+    --porsche-dark: #1a1a1a;
+    --porsche-white: #ffffff;
+    --porsche-red: #d5001c;
+    --porsche-red-light: #ff1a3c;
+    --porsche-gray: #333333;
+    --porsche-gray-light: #666666;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply bg-black text-white;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  /* Fokus-Styles für Accessibility */
+  :focus-visible {
+    outline: 2px solid var(--porsche-red);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Porsche-Button-Styles */
+  .btn-porsche {
+    @apply px-6 py-3 rounded-full font-medium transition-all duration-200;
+    background: var(--porsche-red);
+    color: white;
+  }
+  
+  .btn-porsche:hover {
+    background: var(--porsche-red-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(213, 0, 28, 0.4);
+  }
+  
+  .btn-porsche:active {
+    transform: translateY(0);
+  }
+  
+  /* Card-Styles */
+  .card-porsche {
+    @apply rounded-2xl p-6;
+    background: var(--porsche-dark);
+    border: 1px solid var(--porsche-gray);
+  }
+  
+  /* Input-Styles */
+  .input-porsche {
+    @apply rounded-xl px-4 py-3 text-white transition-all duration-200;
+    background: black;
+    border: 2px solid var(--porsche-gray);
+  }
+  
+  .input-porsche:focus {
+    border-color: var(--porsche-red);
+    box-shadow: 0 0 0 3px rgba(213, 0, 28, 0.2);
+  }
+}
+
+@layer utilities {
+  /* Text-Gradient */
+  .text-gradient-porsche {
+    background: linear-gradient(135deg, var(--porsche-red), var(--porsche-red-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Glow-Effekt */
+  .glow-porsche {
+    box-shadow: 0 0 20px rgba(213, 0, 28, 0.3);
+  }
+  
+  /* Animationen */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Scrollbar-Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--porsche-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--porsche-gray);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--porsche-gray-light);
+}
+
+/* Selection */
+::selection {
+  background: rgba(213, 0, 28, 0.3);
+  color: white;
+}
+
+/* Number-Input Spin-Buttons entfernen */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --primary: 0 100% 50%;
+    --border: 0 0% 100%;
+  }
+}
+
+/* Print-Styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}

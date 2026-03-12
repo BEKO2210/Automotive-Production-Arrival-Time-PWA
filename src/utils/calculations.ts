@@ -62,9 +62,16 @@ export function calculateArrivalTime(
   const arrivalTime = calculateTimeAfterWorkSeconds(nowTimestamp, remainingWorkSeconds, breaks);
   const totalSecondsUntilArrival = Math.max(0, Math.floor((arrivalTime.getTime() - nowTimestamp) / 1000));
 
-  const totalRange = totalStations - minStation;
-  const currentOffset = liveCurrentStation - minStation;
-  const progressPercent = Math.min(100, Math.max(0, (currentOffset / totalRange) * 100));
+  // Fortschrittsberechnung: Wie viel des Weges zum Ziel ist geschafft?
+  const tripTotal = targetStation - enteredStation;
+  const tripDone = liveCurrentStation - enteredStation;
+  
+  let progressPercent = 0;
+  if (tripTotal > 0) {
+    progressPercent = Math.min(100, Math.max(0, (tripDone / tripTotal) * 100));
+  } else if (liveCurrentStation >= targetStation) {
+    progressPercent = 100;
+  }
 
   return {
     remainingStations: Math.ceil(remainingStations),

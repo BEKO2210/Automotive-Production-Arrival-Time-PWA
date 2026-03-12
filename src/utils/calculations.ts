@@ -3,8 +3,6 @@
  * Enthält die Kernlogik für die Stationsberechnung
  */
 
-import { TOTAL_STATIONS, SECONDS_PER_STATION } from '@/store/useStationStore';
-
 /**
  * Ergebnis der Ankunftsberechnung
  */
@@ -26,22 +24,26 @@ export interface ArrivalResult {
 /**
  * Berechnet die Ankunftszeit basierend auf aktueller und Zielstation
  * 
- * @param currentStation - Aktuelle Station des Fahrzeugs (1-150)
- * @param targetStation - Zielstation (Meine Station) (1-150)
+ * @param currentStation - Aktuelle Station des Fahrzeugs
+ * @param targetStation - Zielstation (Meine Station)
+ * @param totalStations - Gesamtanzahl der Stationen
+ * @param secondsPerStation - Sekunden pro Station
  * @returns ArrivalResult mit allen Berechnungsdaten
  */
 export function calculateArrivalTime(
   currentStation: number,
-  targetStation: number
+  targetStation: number,
+  totalStations: number,
+  secondsPerStation: number
 ): ArrivalResult {
   // Validierung der Eingaben
   if (
     isNaN(currentStation) ||
     isNaN(targetStation) ||
     currentStation < 1 ||
-    currentStation > TOTAL_STATIONS ||
+    currentStation > totalStations ||
     targetStation < 1 ||
-    targetStation > TOTAL_STATIONS
+    targetStation > totalStations
   ) {
     return {
       remainingStations: 0,
@@ -60,12 +62,12 @@ export function calculateArrivalTime(
   const isPassed = remainingStations <= 0;
   
   // Berechnung der verbleibenden Zeit
-  const remainingSeconds = isPassed ? 0 : remainingStations * SECONDS_PER_STATION;
+  const remainingSeconds = isPassed ? 0 : remainingStations * secondsPerStation;
   
   // Berechnung des Fortschritts (0-100%)
   const progressPercent = Math.min(
     100,
-    Math.max(0, (currentStation / TOTAL_STATIONS) * 100)
+    Math.max(0, (currentStation / totalStations) * 100)
   );
 
   return {
@@ -156,12 +158,16 @@ export function formatTime(date: Date): string {
  * 
  * @param startStation - Startstation
  * @param elapsedSeconds - Verstrichene Zeit in Sekunden
+ * @param totalStations - Gesamtanzahl Stationen
+ * @param secondsPerStation - Sekunden pro Station
  * @returns Aktuelle Station
  */
 export function calculateStationFromElapsedTime(
   startStation: number,
-  elapsedSeconds: number
+  elapsedSeconds: number,
+  totalStations: number,
+  secondsPerStation: number
 ): number {
-  const stationsPassed = Math.floor(elapsedSeconds / SECONDS_PER_STATION);
-  return Math.min(TOTAL_STATIONS, startStation + stationsPassed);
+  const stationsPassed = Math.floor(elapsedSeconds / secondsPerStation);
+  return Math.min(totalStations, startStation + stationsPassed);
 }

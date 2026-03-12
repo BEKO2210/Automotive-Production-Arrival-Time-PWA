@@ -5,12 +5,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Konstanten für die Produktionslinie
-export const TOTAL_STATIONS = 150;
-export const SECONDS_PER_STATION = 162; // 2 Minuten 42 Sekunden
-
 // Interface für den Store-State
 interface StationState {
+  // Konfiguration
+  totalStations: number;
+  secondsPerStation: number;
+  
   // Aktuelle Eingaben
   currentStation: number;
   targetStation: number;
@@ -19,6 +19,8 @@ interface StationState {
   favoriteStation: number | null;
   
   // Aktionen
+  setTotalStations: (total: number) => void;
+  setSecondsPerStation: (seconds: number) => void;
   setCurrentStation: (station: number) => void;
   setTargetStation: (station: number) => void;
   setFavoriteStation: (station: number | null) => void;
@@ -28,6 +30,8 @@ interface StationState {
 
 // Initialwerte
 const initialState = {
+  totalStations: 150,
+  secondsPerStation: 162, // 2 Minuten 42 Sekunden
   currentStation: 1,
   targetStation: 80,
   favoriteStation: null,
@@ -42,21 +46,40 @@ export const useStationStore = create<StationState>()(
     (set, get) => ({
       ...initialState,
       
+      setTotalStations: (total: number) => {
+        const newTotal = Math.max(1, Math.round(total));
+        set({ totalStations: newTotal });
+        
+        // Klemme aktuelle Werte auf neues Maximum
+        const { currentStation, targetStation, favoriteStation } = get();
+        if (currentStation > newTotal) set({ currentStation: newTotal });
+        if (targetStation > newTotal) set({ targetStation: newTotal });
+        if (favoriteStation !== null && favoriteStation > newTotal) {
+          set({ favoriteStation: newTotal });
+        }
+      },
+      
+      setSecondsPerStation: (seconds: number) => {
+        set({ secondsPerStation: Math.max(1, Math.round(seconds)) });
+      },
+      
       /**
        * Setzt die aktuelle Fahrzeugstation
-       * Validiert den Bereich 1-150
+       * Validiert den Bereich
        */
       setCurrentStation: (station: number) => {
-        const clampedStation = Math.max(1, Math.min(TOTAL_STATIONS, Math.round(station)));
+        const { totalStations } = get();
+        const clampedStation = Math.max(1, Math.min(totalStations, Math.round(station)));
         set({ currentStation: clampedStation });
       },
       
       /**
        * Setzt die Zielstation (Meine Station)
-       * Validiert den Bereich 1-150
+       * Validiert den Bereich
        */
       setTargetStation: (station: number) => {
-        const clampedStation = Math.max(1, Math.min(TOTAL_STATIONS, Math.round(station)));
+        const { totalStations } = get();
+        const clampedStation = Math.max(1, Math.min(totalStations, Math.round(station)));
         set({ targetStation: clampedStation });
       },
       
@@ -64,8 +87,9 @@ export const useStationStore = create<StationState>()(
        * Speichert eine Station als Favorit
        */
       setFavoriteStation: (station: number | null) => {
+        const { totalStations } = get();
         if (station !== null) {
-          const clampedStation = Math.max(1, Math.min(TOTAL_STATIONS, Math.round(station)));
+          const clampedStation = Math.max(1, Math.min(totalStations, Math.round(station)));
           set({ favoriteStation: clampedStation });
         } else {
           set({ favoriteStation: null });
@@ -85,14 +109,16 @@ export const useStationStore = create<StationState>()(
       /**
        * Setzt alle Werte auf die Initialwerte zurück
        */
-      reset: () => set(initialState),
+      reset: () => set({ ...initialState, totalStations: get().totalStations, secondsPerStation: get().secondsPerStation }),
     }),
     {
       name: 'autoflow-tracker-storage', // Name für localStorage
       partialize: (state) => ({ 
         favoriteStation: state.favoriteStation,
         targetStation: state.targetStation,
-      }), // Nur Favorit und Zielstation persistieren
+        totalStations: state.totalStations,
+        secondsPerStation: state.secondsPerStation,
+      }), // Persistierte Werte
     }
   )
 );

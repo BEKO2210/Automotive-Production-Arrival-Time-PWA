@@ -29,7 +29,7 @@
     --border: 0 0% 20%;             /* #333333 */
     --input: 0 0% 15%;              /* #262626 */
     --ring: 352 100% 42%;           /* #d5001c */
-    --radius: 1rem;
+    --radius: 0.2rem;
     
     /* Porsche-Farben */
     --porsche-black: #000000;

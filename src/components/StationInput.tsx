@@ -8,13 +8,14 @@ import { MapPin, Star, StarOff } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { TOTAL_STATIONS } from '@/store/useStationStore';
 
 interface StationInputProps {
   /** Aktueller Wert */
   value: number;
   /** Callback bei Änderung */
   onChange: (value: number) => void;
+  /** Gesamtanzahl Stationen */
+  totalStations: number;
   /** Label für das Eingabefeld */
   label: string;
   /** Beschreibungstext */
@@ -38,6 +39,7 @@ interface StationInputProps {
 export function StationInput({
   value,
   onChange,
+  totalStations,
   label,
   description,
   icon,
@@ -72,10 +74,10 @@ export function StationInput({
     // Nur gültige Zahlen akzeptieren
     const numValue = parseInt(rawValue, 10);
     if (!isNaN(numValue)) {
-      const clampedValue = Math.max(1, Math.min(TOTAL_STATIONS, numValue));
+      const clampedValue = Math.max(1, Math.min(totalStations, numValue));
       onChange(clampedValue);
     }
-  }, [onChange]);
+  }, [onChange, totalStations]);
 
   /**
    * Handler für Blur-Event (Validierung)
@@ -84,10 +86,10 @@ export function StationInput({
     const numValue = parseInt(inputValue, 10);
     if (isNaN(numValue) || numValue < 1) {
       onChange(1);
-    } else if (numValue > TOTAL_STATIONS) {
-      onChange(TOTAL_STATIONS);
+    } else if (numValue > totalStations) {
+      onChange(totalStations);
     }
-  }, [inputValue, onChange]);
+  }, [inputValue, onChange, totalStations]);
 
   /**
    * Handler für Favoriten-Button
@@ -152,7 +154,7 @@ export function StationInput({
           <Input
             type="number"
             min={1}
-            max={TOTAL_STATIONS}
+            max={totalStations}
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleBlur}
@@ -160,7 +162,7 @@ export function StationInput({
             aria-label={`${label} eingeben`}
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-            /{TOTAL_STATIONS}
+            /{totalStations}
           </span>
         </div>
 
@@ -170,13 +172,13 @@ export function StationInput({
             value={[value]}
             onValueChange={handleSliderChange}
             min={1}
-            max={TOTAL_STATIONS}
+            max={totalStations}
             step={1}
             className="w-full"
           />
           <div className="flex justify-between mt-2 text-xs text-gray-500">
             <span>1</span>
-            <span>{TOTAL_STATIONS}</span>
+            <span>{totalStations}</span>
           </div>
         </div>
       </div>
@@ -186,8 +188,8 @@ export function StationInput({
         <MapPin className="w-4 h-4" />
         <span>
           {value === 1 && 'Start der Produktionslinie'}
-          {value === TOTAL_STATIONS && 'Ende der Produktionslinie'}
-          {value > 1 && value < TOTAL_STATIONS && `Station ${value} von ${TOTAL_STATIONS}`}
+          {value === totalStations && 'Ende der Produktionslinie'}
+          {value > 1 && value < totalStations && `Station ${value} von ${totalStations}`}
         </span>
       </div>
     </motion.div>

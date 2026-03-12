@@ -4,13 +4,14 @@
  */
 import { motion } from 'framer-motion';
 import { Car, Factory, Flag } from 'lucide-react';
-import { TOTAL_STATIONS } from '@/store/useStationStore';
 
 interface ProductionLineProps {
   /** Aktuelle Station des Fahrzeugs */
   currentStation: number;
   /** Zielstation (Meine Station) */
   targetStation: number;
+  /** Gesamtanzahl der Stationen */
+  totalStations: number;
   /** Zusätzliche CSS-Klassen */
   className?: string;
 }
@@ -22,11 +23,12 @@ interface ProductionLineProps {
 export function ProductionLine({
   currentStation,
   targetStation,
+  totalStations,
   className = '',
 }: ProductionLineProps) {
   // Berechne die Positionen als Prozentsatz
-  const currentPosition = (currentStation / TOTAL_STATIONS) * 100;
-  const targetPosition = (targetStation / TOTAL_STATIONS) * 100;
+  const currentPosition = (currentStation / totalStations) * 100;
+  const targetPosition = (targetStation / totalStations) * 100;
 
   // Bestimme den Status
   const isPassed = currentStation >= targetStation;
@@ -163,7 +165,7 @@ export function ProductionLine({
         {/* End-Marker */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
           <div className="w-8 h-8 rounded-full bg-gray-700 border-4 border-[#1a1a1a] flex items-center justify-center">
-            <span className="text-xs font-bold text-white">{TOTAL_STATIONS}</span>
+            <span className="text-xs font-bold text-white">{totalStations}</span>
           </div>
         </div>
       </div>
@@ -171,8 +173,8 @@ export function ProductionLine({
       {/* Stations-Ticks */}
       <div className="relative h-4 mt-2">
         {Array.from({ length: 11 }, (_, i) => {
-          const station = Math.round((TOTAL_STATIONS / 10) * i);
-          const position = (station / TOTAL_STATIONS) * 100;
+          const station = Math.round((totalStations / 10) * i);
+          const position = (station / totalStations) * 100;
           return (
             <div
               key={station}

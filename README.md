@@ -1,158 +1,51 @@
-# Autoflow Tracker
+# Autoflow Tracker – Produktionslinien ETA
 
-Eine Progressive Web App (PWA) für die Automobilproduktion zur Berechnung von Ankunftszeiten entlang einer Produktionslinie.
+Willkommen beim **Autoflow Tracker**, Ihrem digitalen Assistenten für die Automobilproduktion. Diese App wurde speziell dafür entwickelt, Ihnen in Echtzeit die exakte Ankunftszeit eines Fahrzeugs an Ihrer Station zu berechnen. 
 
-## Features
+Mit ihrem klaren, industriellen Design fügt sie sich nahtlos in den Produktionsalltag ein und liefert präzise Daten, um Ihre Abläufe effizienter zu gestalten.
 
-- **Echtzeit-Berechnung**: Berechnet verbleibende Zeit bis zur Ankunft an einer Station
-- **Countdown-Display**: Große, gut lesbare Zahlen für industrielle Umgebungen
-- **Produktionslinie-Visualisierung**: Animierte Darstellung der Fahrzeugposition
-- **Favoriten**: Speichern Sie Ihre Station für schnellen Zugriff
-- **Offline-fähig**: Funktioniert komplett ohne Internetverbindung
-- **Installierbar**: Kann als App auf dem Homescreen installiert werden
-- **Porsche-inspiriertes Design**: Minimalistisch, technisch, hochwertig
+---
 
-## Tech Stack
+## 🛠 Wie funktioniert die App?
 
-- **Frontend**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Animation**: Framer Motion
-- **State Management**: Zustand
-- **PWA**: vite-plugin-pwa
-- **Icons**: Lucide React
+Die Bedienung ist auf maximale Effizienz ausgelegt:
 
-## Installation
+1. **Aktuelle Fahrzeugstation:** 
+   Geben Sie hier die Station ein, an der sich das Fahrzeug momentan auf dem Band befindet. Sie können die Zahl eintippen oder den Schieberegler nutzen.
 
-### Voraussetzungen
+2. **Ihre Arbeitsstation:**
+   Tragen Sie hier Ihre eigene Station ein. 
+   *Tipp:* Wenn Sie immer an derselben Station arbeiten, klicken Sie auf das **Stern-Symbol (Favorit)**. Die App merkt sich Ihre Station für den nächsten Tag!
 
-- Node.js 18+
-- npm oder yarn
+3. **Ergebnis ablesen:**
+   Sobald Sie beide Stationen eingegeben haben, berechnet die App automatisch:
+   - Den **Countdown** in Stunden, Minuten und Sekunden.
+   - Die exakte **Uhrzeit**, zu der das Fahrzeug bei Ihnen ankommt.
+   - Die **Differenz der Stationen**.
 
-### Lokale Entwicklung
+---
 
-```bash
-# Repository klonen
-git clone <repository-url>
-cd autoflow-tracker
+## ⚙️ Einstellungen & Taktzeit anpassen
 
-# Dependencies installieren
-npm install
+Oben rechts finden Sie das **Zahnrad-Symbol (Einstellungen)**. Hier können Sie die Produktionsparameter jederzeit an die aktuelle Schicht anpassen:
 
-# Entwicklungsserver starten
-npm run dev
-```
+- **Gesamtstationen:** Die Gesamtzahl der Stationen auf Ihrer Linie.
+- **Zeit pro Station (Taktzeit):** Wie lange das Band für eine Station benötigt (z.B. 2 Minuten und 42 Sekunden).
 
-Die App ist dann unter `http://localhost:3000` verfügbar.
+*Klicken Sie auf Speichern, um die neuen Werte für die Berechnung zu übernehmen.*
 
-### Production Build
+---
 
-```bash
-# Build erstellen
-npm run build
+## 📱 App auf dem Smartphone/Tablet installieren (Offline-Nutzung)
 
-# Build lokal testen
-npm run preview
-```
+Der Autoflow Tracker ist eine sogenannte "PWA" (Progressive Web App). Das bedeutet, Sie können die Webseite wie eine normale App auf Ihrem Gerät installieren. **Sie funktioniert danach komplett ohne Internetverbindung!**
 
-Der Build wird im `dist/`-Verzeichnis erstellt.
+**So installieren Sie die App:**
+- **Apple (iPhone/iPad):** Öffnen Sie die Seite im Safari-Browser, tippen Sie unten in der Mitte auf das "Teilen"-Symbol (Viereck mit Pfeil nach oben) und wählen Sie **"Zum Home-Bildschirm"**.
+- **Android / Scanner:** Öffnen Sie die Seite im Chrome-Browser. Oft erscheint unten automatisch ein Banner "App installieren". Falls nicht, tippen Sie oben rechts auf die drei Punkte und wählen Sie **"App installieren"** oder **"Zum Startbildschirm hinzufügen"**.
 
-## PWA Installation
+Nach der Installation finden Sie das Icon direkt bei Ihren anderen Apps.
 
-### Android (Chrome)
+---
 
-1. Öffnen Sie die App im Chrome Browser
-2. Tippen Sie auf das Menü (⋮)
-3. Wählen Sie "Zum Startbildschirm hinzufügen"
-4. Bestätigen Sie mit "Hinzufügen"
-
-### iOS (Safari)
-
-1. Öffnen Sie die App in Safari
-2. Tippen Sie auf das Teilen-Symbol (□↑)
-3. Wählen Sie "Zum Home-Bildschirm"
-4. Bestätigen Sie mit "Hinzufügen"
-
-### Desktop (Chrome/Edge)
-
-1. Öffnen Sie die App im Browser
-2. Klicken Sie auf das Install-Symbol in der Adressleiste
-3. Bestätigen Sie mit "Installieren"
-
-## Verwendung
-
-1. **Aktuelle Fahrzeugstation eingeben**: Geben Sie die Station ein, an der sich das Fahrzeug aktuell befindet
-2. **Meine Station eingeben**: Geben Sie Ihre Arbeitsstation ein
-3. **Ankunftszeit ablesen**: Die App zeigt sofort die verbleibende Zeit an
-4. **Favorit speichern**: Klicken Sie auf den Stern, um Ihre Station zu speichern
-
-## Konfiguration
-
-Die App ist für eine Produktionslinie mit folgenden Parametern konfiguriert:
-
-- **Gesamtstationen**: 150
-- **Zeit pro Station**: 2 Minuten 42 Sekunden (162 Sekunden)
-
-Diese Werte können in `src/store/useStationStore.ts` angepasst werden.
-
-## Projektstruktur
-
-```
-autoflow-tracker/
-├── public/
-│   ├── icons/              # PWA Icons
-│   └── manifest.webmanifest # Web App Manifest
-├── src/
-│   ├── components/         # React Komponenten
-│   │   ├── StationInput.tsx
-│   │   ├── CountdownDisplay.tsx
-│   │   └── ProductionLine.tsx
-│   ├── hooks/              # Custom React Hooks
-│   │   └── useCountdown.ts
-│   ├── pages/              # Seitenkomponenten
-│   │   └── Home.tsx
-│   ├── store/              # Zustand Stores
-│   │   └── useStationStore.ts
-│   ├── utils/              # Utility-Funktionen
-│   │   ├── calculations.ts
-│   │   └── time.ts
-│   ├── App.tsx
-│   ├── main.tsx
-│   ├── App.css
-│   └── index.css
-├── index.html
-├── vite.config.ts
-├── tailwind.config.js
-├── tsconfig.json
-└── package.json
-```
-
-## Performance
-
-Ziel-Lighthouse-Scores:
-
-- **Performance**: 100
-- **Accessibility**: 100
-- **Best Practices**: 100
-- **SEO**: 100
-
-## Browser Support
-
-- Chrome/Edge (empfohlen)
-- Firefox
-- Safari
-- Samsung Internet
-
-## Lizenz
-
-MIT License
-
-## Entwickler
-
-Entwickelt für industrielle Produktionsumgebungen mit Fokus auf:
-
-- Einfache Bedienung
-- Schnelle Berechnung
-- Offline-Funktionalität
-- Hohe Performance
-- Barrierefreiheit
+*Entwickelt für höchste Präzision in der industriellen Fertigung.*

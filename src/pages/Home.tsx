@@ -15,6 +15,12 @@ import { StationInput } from '@/components/StationInput';
 import { CountdownDisplay } from '@/components/CountdownDisplay';
 import { ProductionLine } from '@/components/ProductionLine';
 
+// TypeScript Interface für BeforeInstallPromptEvent
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export function Home() {
   // Store-States
   const {
@@ -32,7 +38,7 @@ export function Home() {
     reset,
   } = useStationStore();
 
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 

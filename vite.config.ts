@@ -7,8 +7,15 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
+
+const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1];
+const isCiBuild = process.env.GITHUB_ACTIONS === 'true';
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  // GitHub Pages benötigt den Repo-Pfad als Base auf CI
+  base: isCiBuild && repoName ? `/${repoName}/` : '/',
+
   plugins: [
     // React Plugin
     react(),

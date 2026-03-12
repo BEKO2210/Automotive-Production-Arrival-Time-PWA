@@ -102,9 +102,9 @@ export function StationInput({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
       className={`bg-[#1a1a1a] rounded-sm p-6 md:p-8 ${className}`}
     >
       {/* Header mit Label und Icon */}
@@ -150,7 +150,7 @@ export function StationInput({
       {/* Eingabebereich */}
       <div className="flex flex-col md:flex-row gap-6 items-center">
         {/* Numerische Eingabe */}
-        <div className="relative w-full md:w-32">
+        <div className="relative w-full md:w-40 shrink-0">
           <Input
             type="number"
             min={1}
@@ -158,27 +158,27 @@ export function StationInput({
             value={inputValue}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            className="text-center text-3xl md:text-4xl font-bold text-white bg-black border-2 border-gray-700 rounded-sm h-16 md:h-20 focus:border-[#d5001c] focus:ring-[#d5001c]/30 transition-all"
+            className="text-center text-3xl md:text-4xl font-bold text-white bg-black border-2 border-gray-700 rounded-sm h-16 md:h-20 focus:border-[#d5001c] focus:ring-[#d5001c]/30 transition-all font-mono"
             aria-label={`${label} eingeben`}
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-            /{totalStations}
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] uppercase font-bold pointer-events-none">
+            Stat.
           </span>
         </div>
 
         {/* Slider */}
-        <div className="flex-1 w-full">
+        <div className="flex-1 w-full touch-none">
           <Slider
             value={[value]}
             onValueChange={handleSliderChange}
             min={1}
             max={totalStations}
             step={1}
-            className="w-full"
+            className="w-full h-10"
           />
-          <div className="flex justify-between mt-2 text-xs text-gray-500">
-            <span>1</span>
-            <span>{totalStations}</span>
+          <div className="flex justify-between mt-2 text-[10px] uppercase font-bold text-gray-600 tracking-widest">
+            <span>Start</span>
+            <span>Ende ({totalStations})</span>
           </div>
         </div>
       </div>

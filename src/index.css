@@ -57,8 +57,20 @@
     @apply bg-black text-white;
     min-height: 100vh;
     overflow-x: hidden;
+    /* Verhindert Pull-to-Refresh und ungewolltes Scrollen beim Sliden */
     touch-action: pan-y;
     overscroll-behavior-y: none;
+    /* Verhindert automatisches Zoomen bei Klick auf Inputs */
+    font-size: 16px;
+    /* Native App Feel */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Porsche Precision Font für die Uhr */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
   }
   
   /* Fokus-Styles für Accessibility */
@@ -147,6 +159,11 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes pulse-red {
+    0%, 100% { box-shadow: inset 0 0 20px rgba(213, 0, 28, 0.2); }
+    50% { box-shadow: inset 0 0 60px rgba(213, 0, 28, 0.6); }
   }
 }
 

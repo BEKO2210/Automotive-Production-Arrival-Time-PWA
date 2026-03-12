@@ -150,7 +150,7 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
       <div className="flex justify-center items-center gap-2 md:gap-4 mb-10">
         {/* Stunden */}
         <div className="flex flex-col items-center">
-          <div className="bg-black rounded-sm px-4 md:px-8 py-6 md:py-10 border border-white/10 shadow-inner">
+          <div className="bg-black rounded-sm px-4 md:px-8 py-6 md:py-10 border border-white/10 shadow-inner min-w-[80px] md:min-w-[140px] flex justify-center items-center overflow-hidden">
             <AnimatePresence mode="popLayout">
               <motion.span
                 key={hours}
@@ -159,7 +159,7 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
                 animate="animate"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-bold text-white font-mono tracking-tighter"
+                className="text-5xl md:text-7xl lg:text-8xl font-bold text-white font-mono tracking-tighter tabular-nums inline-block"
               >
                 {hours}
               </motion.span>
@@ -171,13 +171,13 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
         </div>
 
         {/* Trennzeichen */}
-        <div className="text-3xl md:text-5xl lg:text-6xl font-bold text-[#d5001c] pb-8 opacity-80">
+        <div className="text-3xl md:text-5xl lg:text-6xl font-bold text-[#d5001c] pb-8 opacity-80 w-4 flex justify-center">
           :
         </div>
 
         {/* Minuten */}
         <div className="flex flex-col items-center">
-          <div className="bg-black rounded-sm px-4 md:px-8 py-6 md:py-10 border border-white/10 shadow-inner">
+          <div className="bg-black rounded-sm px-4 md:px-8 py-6 md:py-10 border border-white/10 shadow-inner min-w-[80px] md:min-w-[140px] flex justify-center items-center overflow-hidden">
             <AnimatePresence mode="popLayout">
               <motion.span
                 key={minutes}
@@ -186,7 +186,7 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
                 animate="animate"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-bold text-white font-mono tracking-tighter"
+                className="text-5xl md:text-7xl lg:text-8xl font-bold text-white font-mono tracking-tighter tabular-nums inline-block"
               >
                 {minutes}
               </motion.span>
@@ -198,13 +198,13 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
         </div>
 
         {/* Trennzeichen */}
-        <div className="text-3xl md:text-5xl lg:text-6xl font-bold text-[#d5001c] pb-8 opacity-80">
+        <div className="text-3xl md:text-5xl lg:text-6xl font-bold text-[#d5001c] pb-8 opacity-80 w-4 flex justify-center">
           :
         </div>
 
         {/* Sekunden */}
         <div className="flex flex-col items-center">
-          <div className="bg-black rounded-sm px-4 md:px-8 py-6 md:py-10 border border-white/10 shadow-inner">
+          <div className="bg-black rounded-sm px-4 md:px-8 py-6 md:py-10 border border-white/10 shadow-inner min-w-[80px] md:min-w-[140px] flex justify-center items-center overflow-hidden">
             <AnimatePresence mode="popLayout">
               <motion.span
                 key={seconds}
@@ -213,7 +213,7 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
                 animate="animate"
                 exit="exit"
                 transition={{ duration: 0.3 }}
-                className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#d5001c] font-mono tracking-tighter"
+                className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#d5001c] font-mono tracking-tighter tabular-nums inline-block"
               >
                 {seconds}
               </motion.span>

@@ -76,11 +76,14 @@ export function Home() {
   }, []);
 
   return (
-    <div className={`min-h-screen bg-black text-white font-sans transition-all duration-500 ${
-      arrivalResult.remainingStations === 1 && !arrivalResult.isPassed 
-        ? 'ring-inset ring-8 ring-[#d5001c] animate-pulse' 
-        : ''
-    }`}>
+    <div className={`min-h-screen bg-black text-white font-sans transition-all duration-500`} style={{
+      boxShadow: arrivalResult.remainingStations === 1 && !arrivalResult.isPassed 
+        ? 'inset 0 0 40px #d5001c' 
+        : 'none',
+      animation: arrivalResult.remainingStations === 1 && !arrivalResult.isPassed 
+        ? 'pulse-red 2s infinite' 
+        : 'none'
+    }}>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
         <div className="max-w-5xl mx-auto px-4 py-4 md:py-6 flex items-center justify-between">

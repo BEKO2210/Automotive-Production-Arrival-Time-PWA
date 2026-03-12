@@ -36,9 +36,9 @@ export function ProductionLine({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
       className={`bg-[#1a1a1a] rounded-sm p-6 md:p-8 ${className}`}
     >
       {/* Header */}

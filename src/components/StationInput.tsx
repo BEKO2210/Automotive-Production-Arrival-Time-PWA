@@ -1,41 +1,23 @@
-/**
- * StationInput Komponente
- * Eingabefeld für Stationsnummern mit Slider und numerischer Eingabe
- */
 import { useCallback, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Star, StarOff } from 'lucide-react';
+import { MapPin, Star, StarOff, Minus, Plus } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 interface StationInputProps {
-  /** Aktueller Wert */
   value: number;
-  /** Callback bei Änderung */
   onChange: (value: number) => void;
-  /** Start-Station */
   minStation: number;
-  /** Gesamtanzahl Stationen */
   totalStations: number;
-  /** Label für das Eingabefeld */
   label: string;
-  /** Icon-Komponente */
   icon?: React.ReactNode;
-  /** Ob diese Station als Favorit markiert werden kann */
   showFavorite?: boolean;
-  /** Ob diese Station aktuell als Favorit gespeichert ist */
   isFavorite?: boolean;
-  /** Callback für Favoriten-Button */
   onFavoriteToggle?: () => void;
-  /** Zusätzliche CSS-Klassen */
   className?: string;
 }
 
-/**
- * Eingabekomponente für Stationsnummern
- * Kombiniert Slider und numerische Eingabe für beste UX
- */
 export function StationInput({
   value,
   onChange,
@@ -48,40 +30,25 @@ export function StationInput({
   onFavoriteToggle,
   className = '',
 }: StationInputProps) {
-  // Lokaler State für die Eingabe (verhindert zu viele Updates)
   const [inputValue, setInputValue] = useState(value.toString());
 
-  // Update lokaler State wenn sich der Wert von außen ändert
   useEffect(() => {
     setInputValue(value.toString());
   }, [value]);
 
-  /**
-   * Handler für Slider-Änderungen
-   */
   const handleSliderChange = useCallback((values: number[]) => {
-    const newValue = values[0];
-    onChange(newValue);
+    onChange(values[0]);
   }, [onChange]);
 
-  /**
-   * Handler für numerische Eingabe
-   */
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     setInputValue(rawValue);
-
-    // Nur gültige Zahlen akzeptieren
     const numValue = parseInt(rawValue, 10);
     if (!isNaN(numValue)) {
-      const clampedValue = Math.max(minStation, Math.min(totalStations, numValue));
-      onChange(clampedValue);
+      onChange(Math.max(minStation, Math.min(totalStations, numValue)));
     }
   }, [onChange, minStation, totalStations]);
 
-  /**
-   * Handler für Blur-Event (Validierung)
-   */
   const handleBlur = useCallback(() => {
     const numValue = parseInt(inputValue, 10);
     if (isNaN(numValue) || numValue < minStation) {
@@ -91,14 +58,13 @@ export function StationInput({
     }
   }, [inputValue, onChange, minStation, totalStations]);
 
-  /**
-   * Handler für Favoriten-Button
-   */
-  const handleFavoriteClick = useCallback(() => {
-    if (onFavoriteToggle) {
-      onFavoriteToggle();
-    }
-  }, [onFavoriteToggle]);
+  const increment = useCallback(() => {
+    if (value < totalStations) onChange(value + 1);
+  }, [value, totalStations, onChange]);
+
+  const decrement = useCallback(() => {
+    if (value > minStation) onChange(value - 1);
+  }, [value, minStation, onChange]);
 
   return (
     <motion.div
@@ -107,7 +73,6 @@ export function StationInput({
       transition={{ duration: 0.3 }}
       className={`bg-[#1a1a1a] rounded-sm p-4 md:p-8 ${className}`}
     >
-      {/* Header mit Label und Icon */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           {icon && (
@@ -115,19 +80,16 @@ export function StationInput({
               {icon}
             </div>
           )}
-          <div>
-            <h3 className="text-white text-sm md:text-xl font-semibold tracking-wide uppercase tracking-widest">
-              {label}
-            </h3>
-          </div>
+          <h3 className="text-white text-sm md:text-xl font-semibold uppercase tracking-widest">
+            {label}
+          </h3>
         </div>
 
-        {/* Favoriten-Button */}
         {showFavorite && onFavoriteToggle && (
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleFavoriteClick}
+            onClick={onFavoriteToggle}
             className={`rounded-sm transition-all duration-300 ${
               isFavorite
                 ? 'text-[#d5001c] hover:text-[#ff1a3c] hover:bg-[#d5001c]/20'
@@ -144,23 +106,43 @@ export function StationInput({
         )}
       </div>
 
-      {/* Eingabebereich */}
-      <div className="flex flex-col md:flex-row gap-6 items-center">
-        {/* Numerische Eingabe */}
-        <div className="relative w-full md:w-40 shrink-0">
-          <Input
-            type="number"
-            min={minStation}
-            max={totalStations}
-            value={inputValue}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            className="text-center text-3xl md:text-4xl font-bold text-white bg-black border-2 border-gray-700 rounded-sm h-16 md:h-20 focus:border-[#d5001c] focus:ring-[#d5001c]/30 transition-all font-mono"
-            aria-label={`${label} eingeben`}
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-[10px] uppercase font-bold pointer-events-none">
-            Stat.
-          </span>
+      <div className="flex flex-col md:flex-row gap-4 items-center">
+        {/* +/- Buttons with numeric input */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={decrement}
+            disabled={value <= minStation}
+            className="h-16 w-12 md:h-20 md:w-14 border-gray-700 bg-black hover:bg-[#d5001c]/20 hover:border-[#d5001c] text-white rounded-sm disabled:opacity-30"
+            aria-label="Station verringern"
+          >
+            <Minus className="w-5 h-5" />
+          </Button>
+
+          <div className="relative">
+            <Input
+              type="number"
+              min={minStation}
+              max={totalStations}
+              value={inputValue}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className="text-center text-3xl md:text-4xl font-bold text-white bg-black border-2 border-gray-700 rounded-sm h-16 md:h-20 w-24 md:w-32 focus:border-[#d5001c] focus:ring-[#d5001c]/30 transition-all font-mono"
+              aria-label={`${label} eingeben`}
+            />
+          </div>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={increment}
+            disabled={value >= totalStations}
+            className="h-16 w-12 md:h-20 md:w-14 border-gray-700 bg-black hover:bg-[#d5001c]/20 hover:border-[#d5001c] text-white rounded-sm disabled:opacity-30"
+            aria-label="Station erhöhen"
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
         </div>
 
         {/* Slider */}
@@ -180,9 +162,8 @@ export function StationInput({
         </div>
       </div>
 
-      {/* Stations-Indikator */}
       <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
-        <MapPin className="w-4 h-4" />
+        <MapPin className="w-4 h-4" aria-hidden="true" />
         <span>
           {value === minStation && 'Vorbereitung / Start'}
           {value === totalStations && 'Ende der Produktionslinie'}

@@ -193,14 +193,9 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
       <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/5">
         <div className="text-center">
           <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">Differenz</p>
-          <motion.p
-            key={result.remainingStations}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xl md:text-2xl font-bold text-white"
-          >
+          <p className="text-xl md:text-2xl font-bold text-white tabular-nums">
             {result.remainingStations} <span className="text-sm text-gray-500">Stat.</span>
-          </motion.p>
+          </p>
         </div>
 
         <div className="text-center border-x border-white/5">
@@ -210,14 +205,9 @@ export function CountdownDisplay({ result, className = '' }: CountdownDisplayPro
 
         <div className="text-center">
           <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">Fortschritt</p>
-          <motion.p
-            key={result.progressPercent}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xl md:text-2xl font-bold text-white"
-          >
-            {result.progressPercent.toFixed(0)}%
-          </motion.p>
+          <p className="text-xl md:text-2xl font-bold text-white tabular-nums">
+            {Math.floor(result.progressPercent)}%
+          </p>
         </div>
       </div>
 

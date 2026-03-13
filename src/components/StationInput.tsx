@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Star, StarOff, Minus, Plus } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,6 @@ interface StationInputProps {
   totalStations: number;
   label: string;
   icon?: React.ReactNode;
-  showFavorite?: boolean;
-  isFavorite?: boolean;
-  onFavoriteToggle?: () => void;
   className?: string;
 }
 
@@ -25,9 +22,6 @@ export function StationInput({
   totalStations,
   label,
   icon,
-  showFavorite = false,
-  isFavorite = false,
-  onFavoriteToggle,
   className = '',
 }: StationInputProps) {
   const [inputValue, setInputValue] = useState(value.toString());
@@ -73,41 +67,18 @@ export function StationInput({
       transition={{ duration: 0.3 }}
       className={`bg-[#1a1a1a] rounded-sm p-4 md:p-8 ${className}`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          {icon && (
-            <div className="flex items-center justify-center w-8 h-8 rounded-sm bg-[#d5001c]/20">
-              {icon}
-            </div>
-          )}
-          <h3 className="text-white text-sm md:text-xl font-semibold uppercase tracking-widest">
-            {label}
-          </h3>
-        </div>
-
-        {showFavorite && onFavoriteToggle && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onFavoriteToggle}
-            className={`rounded-sm transition-all duration-300 ${
-              isFavorite
-                ? 'text-[#d5001c] hover:text-[#ff1a3c] hover:bg-[#d5001c]/20'
-                : 'text-gray-500 hover:text-white hover:bg-white/10'
-            }`}
-            aria-label={isFavorite ? 'Favorit entfernen' : 'Als Favorit speichern'}
-          >
-            {isFavorite ? (
-              <Star className="w-6 h-6 fill-current" />
-            ) : (
-              <StarOff className="w-6 h-6" />
-            )}
-          </Button>
+      <div className="flex items-center gap-2 mb-4">
+        {icon && (
+          <div className="flex items-center justify-center w-8 h-8 rounded-sm bg-[#d5001c]/20">
+            {icon}
+          </div>
         )}
+        <h3 className="text-white text-sm md:text-xl font-semibold uppercase tracking-widest">
+          {label}
+        </h3>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 items-center">
-        {/* +/- Buttons with numeric input */}
         <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="outline"
@@ -145,7 +116,6 @@ export function StationInput({
           </Button>
         </div>
 
-        {/* Slider */}
         <div className="flex-1 w-full touch-none">
           <Slider
             value={[value]}
@@ -160,15 +130,6 @@ export function StationInput({
             <span>Ende ({totalStations})</span>
           </div>
         </div>
-      </div>
-
-      <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
-        <MapPin className="w-4 h-4" aria-hidden="true" />
-        <span>
-          {value === minStation && 'Vorbereitung / Start'}
-          {value === totalStations && 'Ende der Produktionslinie'}
-          {value > minStation && value < totalStations && `Station ${value} von ${totalStations}`}
-        </span>
       </div>
     </motion.div>
   );

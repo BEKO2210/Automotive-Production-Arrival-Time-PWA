@@ -4,6 +4,7 @@ import {
   Car, MapPin, Settings2, Save, X,
   Clock, Plus, Trash2, List, RotateCcw
 } from 'lucide-react';
+const logoSvg = `${import.meta.env.BASE_URL}icons/logo.svg`;
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,9 +18,9 @@ import { ProductionLine } from '@/components/ProductionLine';
 
 export function Home() {
   const {
-    currentStation, targetStation, favoriteStation, totalStations, secondsPerStation,
+    currentStation, targetStation, totalStations, secondsPerStation,
     breaks, watchlist, minStation, lastUpdateTimestamp,
-    setCurrentStation, setTargetStation, setFavoriteStation, setTotalStations,
+    setCurrentStation, setTargetStation, setTotalStations,
     setSecondsPerStation, toggleBreak, addBreak, removeBreak, addToWatchlist, removeFromWatchlist
   } = useStationStore();
 
@@ -144,9 +145,7 @@ export function Home() {
       <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
         <div className="max-w-5xl mx-auto px-3 py-3 md:py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-[#d5001c] flex items-center justify-center rounded-sm">
-              <Car className="w-5 h-5 md:w-6 md:h-6 text-white" aria-hidden="true" />
-            </div>
+            <img src={logoSvg} alt="Autoflow Logo" className="w-8 h-10 md:w-10 md:h-12 object-contain" />
             <h1 className="text-base md:text-xl font-bold tracking-widest uppercase text-white">
               Autoflow <span className="text-[#d5001c]">Tracker</span>
             </h1>
@@ -272,9 +271,6 @@ export function Home() {
               totalStations={totalStations}
               label="Ihre Station"
               icon={<MapPin className="w-5 h-5 text-[#d5001c]" />}
-              showFavorite
-              isFavorite={favoriteStation === targetStation}
-              onFavoriteToggle={() => setFavoriteStation(favoriteStation === targetStation ? null : targetStation)}
             />
 
             <Button

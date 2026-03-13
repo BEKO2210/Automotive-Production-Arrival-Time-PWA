@@ -145,7 +145,7 @@ export function Home() {
       <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-white/10">
         <div className="max-w-5xl mx-auto px-3 py-3 md:py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoSvg} alt="Autoflow Logo" className="w-8 h-10 md:w-10 md:h-12 object-contain" />
+            <img src={logoSvg} alt="Autoflow Logo" className="h-9 md:h-11 w-auto object-contain" />
             <h1 className="text-base md:text-xl font-bold tracking-widest uppercase text-white">
               Autoflow <span className="text-[#d5001c]">Tracker</span>
             </h1>
